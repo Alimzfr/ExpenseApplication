@@ -1,0 +1,48 @@
+﻿<EditForm Model="expenseItem" OnValidSubmit="OnSubmitHandler">
+    <FluentValidationValidator />
+    <div class="container-fluid p-0">
+        <div class="row">
+            <div class="col-lg-8 col-12 mb-4">
+                <MudTextField T="string"
+                              Label="Purpose"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              @bind-Value="expenseItem.Purpose"
+                              For="@(() => expenseItem.Purpose)" />
+            </div>
+            <div class="col-lg-4 col-12 mb-4">
+                <MudNumericField T="decimal"
+                                 Label="Amount"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 Adornment="Adornment.End"
+                                 AdornmentText="@(new CultureInfo(CurrencyType.GetEnumDescription()).NumberFormat.CurrencySymbol)"
+                                 @bind-Value="expenseItem.Amount"
+                                 For="@(() => expenseItem.Amount)" />
+            </div>
+            <div class="col-12 text-end">
+                <MudButton Variant="Variant.Filled"
+                           ButtonType="ButtonType.Submit"
+                           Color="Color.Info">
+                    Add
+                </MudButton>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public EventCallback<ExpenseItemDto> OnAdd { get; set; }
+
+    [Parameter, EditorRequired]
+    public CurrencyType CurrencyType { get; set; }
+
+    private ExpenseItemDto expenseItem = new();
+
+    private async Task OnSubmitHandler(EditContext editContext)
+    {
+        await OnAdd.InvokeAsync(expenseItem);
+        expenseItem = new();
+    }
+}

@@ -1,0 +1,10 @@
+﻿@if (IsLoading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+    <MudOverlay @bind-Visible="IsLoading" />
+}
+
+@code {
+    [Parameter]
+    public bool IsLoading { get; set; }
+}

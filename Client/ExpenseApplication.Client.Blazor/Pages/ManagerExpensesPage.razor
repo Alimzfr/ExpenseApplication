@@ -1,0 +1,103 @@
+﻿@attribute [Route(PageAddressConstants.ManagerExpensesPage)]
+@attribute [Authorize(Roles = CustomRoleConstants.Manager)]
+@layout MainLayout
+@inherits FluxorComponent
+@inject IState<ManagerExpensesState> ManagerExpensesState
+@inject IDispatcher Dispatcher
+@inject IDialogService DialogService
+<PageTitle>Expenses</PageTitle>
+
+<PageHeader Title="Expenses" Icon="@Icons.Material.Filled.CurrencyExchange" />
+
+<MudExpansionPanels Class="mb-4">
+    <MudExpansionPanel Text="Filter">
+        <ExpenseTableFilterForm ExpenseRequestFilter="ExpenseRequestFilter" OnSubmit="OnExpenseTableFilterFormSubmitHandler" />
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+<ExpenseTable Title="Expense Forms"
+              Expenses="ManagerExpenses"
+              IsActionColumnShow="true"
+              Actions="new[] { ExpenseActionType.Approve, ExpenseActionType.Reject }"
+              OnApprove="OnApproveClickHandler"
+              OnReject="OnRejectClickHandler"
+              IsRefreshButtonShow="true"
+              OnRefresh="OnRefreshClickHandler"
+              Loading="ManagerExpensesLoading" />
+
+@code {
+    private bool ManagerExpensesLoading => ManagerExpensesState.Value.Loading;
+    private bool ManagerExpensesInitialized => ManagerExpensesState.Value.Initialized;
+    private List<ExpenseDto> ManagerExpenses => ManagerExpensesState.Value.ManagerExpenses;
+    private ExpenseRequestFilterDto ExpenseRequestFilter => ManagerExpensesState.Value.ExpenseRequestFilter;
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    protected override void OnInitialized()
+    {
+        if (!ManagerExpensesInitialized)
+        {
+            Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+        }
+
+        base.OnInitialized();
+    }
+
+    private async Task OnApproveClickHandler(ExpenseDto expense)
+    {
+        var addCommentsDialogParameters = new DialogParameters<AddCommentsDialog>
+        {
+            { addCommentsDialog => addCommentsDialog.Content, "Please add comment to approve the expense" },
+        };
+        var addCommentsDialogReference = await DialogService.ShowAsync<AddCommentsDialog>("Approve", addCommentsDialogParameters);
+        var addCommentsDialogResult = await addCommentsDialogReference.GetReturnValueAsync<(bool, string?)?>();
+        if (addCommentsDialogResult?.Item1 is true)
+        {
+            Dispatcher.Dispatch(new ManagerExpensesActions.ApproveExpenseAction(
+                new ApproveExpenseFormDto
+                    {
+                        ExpenseId = expense.Id,
+                        Comments = addCommentsDialogResult.Value.Item2
+                    },
+                cancellationTokenSource.Token));
+        }
+    }
+
+    private async Task OnRejectClickHandler(ExpenseDto expense)
+    {
+        var addCommentsDialogParameters = new DialogParameters<AddCommentsDialog>
+        {
+            { addCommentsDialog => addCommentsDialog.Content, "Please add comment to reject the expense" },
+            { addCommentsDialog => addCommentsDialog.IsRequired, true },
+            { addCommentsDialog => addCommentsDialog.RequiredError, "Rejection reasons is required!" },
+        };
+        var addCommentsDialogReference = await DialogService.ShowAsync<AddCommentsDialog>("Reject", addCommentsDialogParameters);
+        var addCommentsDialogResult = await addCommentsDialogReference.GetReturnValueAsync<(bool, string)?>();
+        if (addCommentsDialogResult?.Item1 is true)
+        {
+            Dispatcher.Dispatch(new ManagerExpensesActions.RejectExpenseAction(
+                new RejectExpenseFormDto
+                    {
+                        ExpenseId = expense.Id,
+                        Comments = addCommentsDialogResult.Value.Item2
+                    },
+                cancellationTokenSource.Token));
+        }
+    }
+
+    private void OnExpenseTableFilterFormSubmitHandler(ExpenseRequestFilterDto expenseRequestFilter)
+    {
+        Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(expenseRequestFilter, cancellationTokenSource.Token));
+    }
+
+    private void OnRefreshClickHandler()
+    {
+        Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

@@ -1,0 +1,6 @@
+﻿::deep pre.json-viewer {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: var(--mud-palette-gray-lighter) !important;
+    border-radius: var(--mud-default-borderradius) !important;
+}

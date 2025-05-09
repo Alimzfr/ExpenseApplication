@@ -1,0 +1,61 @@
+﻿@using ApexCharts
+
+<div style=@($"min-width: {width}; min-height: {height};")>
+    @if (!Loading)
+    {
+        @if (SystemLogLevelCounts.Any())
+        {
+            <ApexChart TItem="SystemLogLevelCountDto"
+                       Height="height"
+                       Options="apexChartOptions">
+
+                <ApexPointSeries TItem="SystemLogLevelCountDto"
+                                 Items="SystemLogLevelCounts"
+                                 SeriesType="SeriesType.Donut"
+                                 XValue="@(systemLogLevelCount => systemLogLevelCount.LogLevel?.ToString() ?? string.Empty)"
+                                 YAggregate="@(systemLogLevelCounts => systemLogLevelCounts.Sum(e => e.Count))"
+                                 OrderByDescending="dataPoint => dataPoint.Y"
+                                 PointColor="PointColor"
+                                 ShowDataLabels="true" />
+            </ApexChart>
+        }
+        else
+        {
+            <MudAlert>No matching data found</MudAlert>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required List<SystemLogLevelCountDto> SystemLogLevelCounts { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; } = false;
+
+    private ApexChartOptions<SystemLogLevelCountDto> apexChartOptions = new();
+    private string width = "100%";
+    private string height = "368px";
+
+    protected override void OnInitialized()
+    {
+        apexChartOptions.Legend = new Legend { Position = LegendPosition.Bottom };
+        base.OnInitialized();
+    }
+
+    private string PointColor(SystemLogLevelCountDto systemLogLevelCount)
+    {
+        return systemLogLevelCount.LogLevel switch
+        {
+            "Trace" => "var(--mud-palette-success-lighten)",
+            "Debug" => "var(--mud-palette-tertiary-lighten)",
+            "Information" => "var(--mud-palette-info-lighten)",
+            "Warning" => "var(--mud-palette-warning-lighten)",
+            "Error" => "var(--mud-palette-error-lighten)",
+            "Critical" => "var(--mud-palette-error)",
+            "Fatal" => "var(--mud-palette-error-darken)",
+            "None" => "var(--mud-palette-gray-light)",
+            _ => "var(--mud-palette-white)"
+        };
+    }
+}

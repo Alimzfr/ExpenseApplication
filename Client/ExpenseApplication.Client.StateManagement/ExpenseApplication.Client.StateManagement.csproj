@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Fluxor.Blazor.Web" Version="6.6.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(Configuration)=='Debug'">
+		<PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="6.6.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\ExpenseApplication.Common\ExpenseApplication.Common.csproj" />
+		<ProjectReference Include="..\ExpenseApplication.Client.Services\ExpenseApplication.Client.Services.csproj" />
+	</ItemGroup>
+
+</Project>

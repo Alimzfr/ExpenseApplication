@@ -1,0 +1,73 @@
+﻿@using ApexCharts
+
+<div style=@($"min-width: {width}; min-height: {height};")>
+    @if (!Loading)
+    {
+        @if (ExpenseActionTypeMonthlyCounts.Any())
+        {
+            <ApexChart TItem="ExpenseActionTypeMonthlyCountDto"
+                       Title="Expense Action Type Monthly Count"
+                       Height="height"
+                       Options="apexChartOptions">
+
+                @foreach (var expenseActionType in ExpenseActionTypeMonthlyCounts.Select(x => x.ExpenseActionTypeCount.ExpenseActionType).Distinct())
+                {
+                    <ApexPointSeries TItem="ExpenseActionTypeMonthlyCountDto"
+                                     Items="ExpenseActionTypeMonthlyCounts"
+                                     Name="@expenseActionType.ToString()"
+                                     Color="@PointColor(expenseActionType)"
+                                     XValue="@(expenseActionTypeMonthlyCount => CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(expenseActionTypeMonthlyCount.MonthNumber))"
+                                     YAggregate="expenseActionTypeMonthlyCounts => YAggregate(expenseActionTypeMonthlyCounts, expenseActionType)"
+                                     OrderBy="dataPoint => dataPoint.X"
+                                     SeriesType="SeriesType.Heatmap" />
+                }
+            </ApexChart>
+        }
+        else
+        {
+            <MudAlert>No matching data found</MudAlert>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required List<ExpenseActionTypeMonthlyCountDto> ExpenseActionTypeMonthlyCounts { get; set; }
+
+    [Parameter] public bool Loading { get; set; } = false;
+
+    private ApexChartOptions<ExpenseActionTypeMonthlyCountDto> apexChartOptions = new();
+    private string width = "100%";
+    private string height = "400px";
+
+    protected override void OnInitialized()
+    {
+        apexChartOptions.Chart = new Chart
+            {
+                Toolbar = new Toolbar
+                {
+                    Show = false
+                }
+            };
+        base.OnInitialized();
+    }
+
+    private string PointColor(ExpenseActionType expenseActionType)
+    {
+        return expenseActionType switch
+        {
+            ExpenseActionType.Submit => "#bdbdbd",
+            ExpenseActionType.Edit => "#ffb624",
+            ExpenseActionType.Approve => "#0dde9c",
+            ExpenseActionType.Reject => "#f87786",
+            ExpenseActionType.Payment => "#5cadff",
+            _ => "#ffffff"
+        };
+    }
+
+    private decimal? YAggregate(IEnumerable<ExpenseActionTypeMonthlyCountDto> expenseActionTypeMonthlyCounts, ExpenseActionType expenseActionType)
+    {
+        return expenseActionTypeMonthlyCounts
+            .Where(expenseActionTypeMonthlyCount => expenseActionTypeMonthlyCount.ExpenseActionTypeCount.ExpenseActionType == expenseActionType)
+            .Sum(expenseActionTypeMonthlyCount => expenseActionTypeMonthlyCount.ExpenseActionTypeCount.Count);
+    }
+}

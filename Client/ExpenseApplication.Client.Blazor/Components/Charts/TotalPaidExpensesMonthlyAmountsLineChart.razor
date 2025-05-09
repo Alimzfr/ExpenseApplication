@@ -1,0 +1,61 @@
+﻿@using ApexCharts
+
+<div style=@($"min-width: {width}; min-height: {height};")>
+    @if (!Loading)
+    {
+        @if (TotalPaidExpensesMonthlyAmounts.Any())
+        {
+            <ApexChart TItem="TotalPaidExpensesMonthlyAmountDto"
+                       Title="Total Paid Expenses Monthly Amount"
+                       Height="height"
+                       Options="apexChartOptions">
+
+                @foreach (var currencyType in TotalPaidExpensesMonthlyAmounts.Select(x => x.CurrencyTypeTotalPaidExpensesAmount.CurrencyType).Distinct())
+                {
+                    <ApexPointSeries TItem="TotalPaidExpensesMonthlyAmountDto"
+                                     Items="TotalPaidExpensesMonthlyAmounts"
+                                     Name="@currencyType.ToString()"
+                                     SeriesType="SeriesType.Line"
+                                     XValue="@(totalPaidExpensesMonthlyAmount => CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(totalPaidExpensesMonthlyAmount.MonthNumber))"
+                                     YAggregate="totalPaidExpensesMonthlyAmounts => YAggregate(totalPaidExpensesMonthlyAmounts, currencyType)"
+                                     OrderBy="dataPoint => dataPoint.X" />
+                }
+            </ApexChart>
+        }
+        else
+        {
+            <MudAlert>No matching data found</MudAlert>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required List<TotalPaidExpensesMonthlyAmountDto> TotalPaidExpensesMonthlyAmounts { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; } = false;
+
+    private ApexChartOptions<TotalPaidExpensesMonthlyAmountDto> apexChartOptions = new();
+    private string width = "100%";
+    private string height = "400px";
+
+    protected override void OnInitialized()
+    {
+        apexChartOptions.Chart = new Chart
+            {
+                Toolbar = new Toolbar
+                {
+                    Show = false
+                }
+            };
+        base.OnInitialized();
+    }
+
+    private decimal? YAggregate(IEnumerable<TotalPaidExpensesMonthlyAmountDto> totalPaidExpensesMonthlyAmounts, CurrencyType currencyType)
+    {
+        return totalPaidExpensesMonthlyAmounts
+            .Where(totalPaidExpensesMonthlyAmount => totalPaidExpensesMonthlyAmount.CurrencyTypeTotalPaidExpensesAmount.CurrencyType == currencyType)
+            .Sum(totalPaidExpensesMonthlyAmount => totalPaidExpensesMonthlyAmount.CurrencyTypeTotalPaidExpensesAmount.TotalPaidExpensesAmount);
+    }
+}

@@ -1,0 +1,143 @@
+﻿@attribute [Route(PageAddressConstants.HomePage)]
+@attribute [Authorize]
+@layout MainLayout
+@inherits FluxorComponent
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IDispatcher Dispatcher
+@inject IState<ManagerExpensesState> ManagerExpensesState
+@inject IState<AccountantExpensesState> AccountantExpensesState
+@inject IDialogService DialogService
+<PageTitle>Home</PageTitle>
+
+<PageHeader Title="Home" Icon="@Icons.Material.Filled.Home" />
+
+<AuthorizeView Roles="@CustomRoleConstants.Manager">
+    <MudExpansionPanels MultiExpansion="true">
+        <MudExpansionPanel Text="Expenses Awaiting Approval" Expanded="IsExpensesAwaitingApprovalExist">
+            <ExpenseTable Title="Expense Forms"
+                          Expenses="ExpensesAwaitingApproval"
+                          IsRefreshButtonShow="false"
+                          IsActionColumnShow="true"
+                          Actions="new[] { ExpenseActionType.Approve, ExpenseActionType.Reject }"
+                          OnApprove="OnApproveClickHandler"
+                          OnReject="OnRejectClickHandler"
+                          Loading="ManagerExpensesLoading" />
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</AuthorizeView>
+
+<AuthorizeView Roles="@CustomRoleConstants.Accountant">
+    <MudExpansionPanels MultiExpansion="true">
+        <MudExpansionPanel Text="Expenses To Be paid" Expanded="IsToBePaidExpensesExist">
+            <ExpenseTable Title="Expense Forms"
+                          Expenses="ToBePaidExpenses"
+                          IsRefreshButtonShow="false"
+                          IsActionColumnShow="true"
+                          Actions="new[] { ExpenseActionType.Payment }"
+                          OnPay="OnPayClickHandler"
+                          Loading="AccountantExpensesLoading" />
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</AuthorizeView>
+
+@code
+{
+    private bool ManagerExpensesLoading => ManagerExpensesState.Value.Loading;
+    private bool ManagerExpensesInitialized => ManagerExpensesState.Value.Initialized;
+    private List<ExpenseDto> ExpensesAwaitingApproval => ManagerExpensesState.Value.ManagerExpenses.Where(expense => expense.ExpenseStatus is ExpenseStatus.Pending).ToList();
+    private bool IsExpensesAwaitingApprovalExist => ManagerExpensesState.Value.ManagerExpenses.Any(expense => expense.ExpenseStatus is ExpenseStatus.Pending);
+
+    private bool AccountantExpensesLoading => AccountantExpensesState.Value.Loading;
+    private bool AccountantExpensesInitialized => AccountantExpensesState.Value.Initialized;
+    private List<ExpenseDto> ToBePaidExpenses => AccountantExpensesState.Value.AccountantExpenses.Where(expense => expense.ExpenseStatus is ExpenseStatus.Approved).ToList();
+    private bool IsToBePaidExpensesExist => AccountantExpensesState.Value.AccountantExpenses.Any(expense => expense.ExpenseStatus is ExpenseStatus.Approved);
+
+    private string? userRoles = null;
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        userRoles = authenticationState?.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+
+        if (userRoles?.Contains(CustomRoleConstants.Manager) is true && !ManagerExpensesInitialized)
+        {
+            Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(new ExpenseRequestFilterDto(), cancellationTokenSource.Token));
+        }
+
+        if (userRoles?.Contains(CustomRoleConstants.Accountant) is true && !AccountantExpensesInitialized)
+        {
+            Dispatcher.Dispatch(new AccountantExpensesActions.LoadAccountantExpensesAction(new ExpenseRequestFilterDto(), cancellationTokenSource.Token));
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnApproveClickHandler(ExpenseDto expense)
+    {
+        var addCommentsDialogParameters = new DialogParameters<AddCommentsDialog>
+        {
+            { addCommentsDialog => addCommentsDialog.Content, "Please add comment to approve the expense" },
+        };
+        var addCommentsDialogReference = await DialogService.ShowAsync<AddCommentsDialog>("Approve", addCommentsDialogParameters);
+        var addCommentsDialogResult = await addCommentsDialogReference.GetReturnValueAsync<(bool, string?)?>();
+        if (addCommentsDialogResult?.Item1 is true)
+        {
+            Dispatcher.Dispatch(new ManagerExpensesActions.ApproveExpenseAction(
+                new ApproveExpenseFormDto
+                    {
+                        ExpenseId = expense.Id,
+                        Comments = addCommentsDialogResult.Value.Item2
+                    },
+                cancellationTokenSource.Token));
+        }
+    }
+
+    private async Task OnRejectClickHandler(ExpenseDto expense)
+    {
+        var addCommentsDialogParameters = new DialogParameters<AddCommentsDialog>
+        {
+            { addCommentsDialog => addCommentsDialog.Content, "Please add comment to reject the expense" },
+            { addCommentsDialog => addCommentsDialog.IsRequired, true },
+            { addCommentsDialog => addCommentsDialog.RequiredError, "Rejection reasons is required!" },
+        };
+        var addCommentsDialogReference = await DialogService.ShowAsync<AddCommentsDialog>("Reject", addCommentsDialogParameters);
+        var addCommentsDialogResult = await addCommentsDialogReference.GetReturnValueAsync<(bool, string)?>();
+        if (addCommentsDialogResult?.Item1 is true)
+        {
+            Dispatcher.Dispatch(new ManagerExpensesActions.RejectExpenseAction(
+                new RejectExpenseFormDto
+                    {
+                        ExpenseId = expense.Id,
+                        Comments = addCommentsDialogResult.Value.Item2
+                    },
+                cancellationTokenSource.Token));
+        }
+    }
+
+    private async Task OnPayClickHandler(ExpenseDto expense)
+    {
+        var addCommentsDialogParameters = new DialogParameters<AddCommentsDialog>
+        {
+            { addCommentsDialog => addCommentsDialog.Content, "Please add comment to payment the expense" },
+        };
+        var addCommentsDialogReference = await DialogService.ShowAsync<AddCommentsDialog>("Make Payment", addCommentsDialogParameters);
+        var addCommentsDialogResult = await addCommentsDialogReference.GetReturnValueAsync<(bool, string?)?>();
+        if (addCommentsDialogResult?.Item1 is true)
+        {
+            Dispatcher.Dispatch(new AccountantExpensesActions.PayExpenseAction(
+                new PayExpenseFormDto
+                    {
+                        ExpenseId = expense.Id,
+                        Comments = addCommentsDialogResult.Value.Item2
+                    },
+                cancellationTokenSource.Token));
+        }
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

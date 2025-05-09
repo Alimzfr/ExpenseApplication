@@ -1,0 +1,75 @@
+﻿@using ApexCharts
+
+<div style=@($"min-width: {width}; min-height: {height};")>
+    @if (!Loading)
+    {
+        @if (ExpenseStatusTypeMonthlyCounts.Any())
+        {
+            <ApexChart TItem="ExpenseStatusTypeMonthlyCountDto"
+                       Title="Expense Status Type Monthly Counts"
+                       Height="height"
+                       Options="apexChartOptions">
+
+                @foreach (var expenseStatus in ExpenseStatusTypeMonthlyCounts.Select(x => x.ExpenseStatusTypeCount.ExpenseStatus).Distinct())
+                {
+                    <ApexPointSeries TItem="ExpenseStatusTypeMonthlyCountDto"
+                                     Items="ExpenseStatusTypeMonthlyCounts"
+                                     Name="@expenseStatus.ToString()"
+                                     PointColor="expenseStatusTypeMonthlyCount => PointColor(expenseStatus)"
+                                     XValue="@(expenseStatusTypeMonthlyCount => CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(expenseStatusTypeMonthlyCount.MonthNumber))"
+                                     YAggregate="expenseStatusTypeMonthlyCounts => YAggregate(expenseStatusTypeMonthlyCounts, expenseStatus)"
+                                     OrderBy="dataPoint=>dataPoint.X"
+                                     SeriesType="SeriesType.Bar" />
+                }
+
+            </ApexChart>
+        }
+        else
+        {
+            <MudAlert>No matching data found</MudAlert>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required List<ExpenseStatusTypeMonthlyCountDto> ExpenseStatusTypeMonthlyCounts { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; } = false;
+
+    private ApexChartOptions<ExpenseStatusTypeMonthlyCountDto> apexChartOptions = new();
+    private string width = "100%";
+    private string height = "400px";
+
+    protected override void OnInitialized()
+    {
+        apexChartOptions.Chart = new Chart
+        {
+            Toolbar = new Toolbar
+            {
+                Show = false
+            }
+        };
+        base.OnInitialized();
+    }
+
+    private string PointColor(ExpenseStatus expenseStatus)
+    {
+        return expenseStatus switch
+        {
+            ExpenseStatus.Pending => "var(--mud-palette-gray-light)",
+            ExpenseStatus.Approved => "var(--mud-palette-success-lighten)",
+            ExpenseStatus.Rejected => "var(--mud-palette-error-lighten)",
+            ExpenseStatus.Paid => "var(--mud-palette-info-lighten)",
+            _ => "var(--mud-palette-white)"
+        };
+    }
+
+    private decimal? YAggregate(IEnumerable<ExpenseStatusTypeMonthlyCountDto> expenseStatusTypeMonthlyCounts, ExpenseStatus expenseStatus)
+    {
+        return expenseStatusTypeMonthlyCounts
+            .Where(expenseStatusTypeMonthlyCount => expenseStatusTypeMonthlyCount.ExpenseStatusTypeCount.ExpenseStatus == expenseStatus)
+            .Sum(expenseStatusTypeMonthlyCount => expenseStatusTypeMonthlyCount.ExpenseStatusTypeCount.Count);
+    }
+}

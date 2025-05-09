@@ -1,0 +1,66 @@
+﻿<EditForm Model="ExpenseTransactionRequestFilter" OnValidSubmit="OnSubmitHandler">
+    <FluentValidationValidator />
+    <div class="container-fluid p-0">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudNumericField T="int?"
+                                 Label="Expense Trace Id"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 Clearable="true"
+                                 @bind-Value="ExpenseTransactionRequestFilter.ExpenseTraceId"
+                                 For="@(() => ExpenseTransactionRequestFilter.ExpenseTraceId)" />
+            </div>
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudSelect T="ExpenseActionType?"
+                           Label="Action Type"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           Clearable="true"
+                           @bind-Value="ExpenseTransactionRequestFilter.ActionType"
+                           For="@(() => ExpenseTransactionRequestFilter.ActionType)">
+                    @foreach (var expenseActionType in EnumHelper.GetEnumItems<ExpenseActionType>())
+                    {
+                        <MudSelectItem T="ExpenseActionType?" Value="@expenseActionType">@expenseActionType.ToString()</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudDatePicker Label="Start Date"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Clearable="true"
+                               @bind-Date="ExpenseTransactionRequestFilter.StartActionDate"
+                               For="@(() => ExpenseTransactionRequestFilter.StartActionDate)" />
+            </div>
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudDatePicker Label="End Date"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Clearable="true"
+                               @bind-Date="ExpenseTransactionRequestFilter.EndActionDate"
+                               For="@(() => ExpenseTransactionRequestFilter.EndActionDate)" />
+            </div>
+            <div class="col-12 text-end">
+                <MudButton Variant="Variant.Filled"
+                           ButtonType="ButtonType.Submit"
+                           Color="Color.Success">
+                    Search
+                </MudButton>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public ExpenseTransactionRequestFilterDto ExpenseTransactionRequestFilter { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public EventCallback<ExpenseTransactionRequestFilterDto> OnSubmit { get; set; }
+
+    private async Task OnSubmitHandler()
+    {
+        await OnSubmit.InvokeAsync(ExpenseTransactionRequestFilter);
+    }
+}

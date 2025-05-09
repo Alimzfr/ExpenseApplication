@@ -1,0 +1,41 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudText>@Content</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudPaper Elevation="0" Class="d-flex flex-grow-1 align-items-center gap-2">
+            <MudButton Variant="Variant.Filled"
+                       ButtonType="ButtonType.Button"
+                       Color="Color.Default"
+                       Class="flex-1"
+                       OnClick="OnCancelClickHandler">
+                Cancel
+            </MudButton>
+            <MudButton Variant="Variant.Filled"
+                       ButtonType="ButtonType.Button"
+                       Color="Color.Success"
+                       Class="flex-1"
+                       OnClick="OnOkClickHandler">
+                Ok
+            </MudButton>
+        </MudPaper>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialogInstance { get; set; }
+
+    [Parameter]
+    public string Content { get; set; }
+
+    private void OnCancelClickHandler()
+    {
+        MudDialogInstance?.Cancel();
+    }
+
+    private void OnOkClickHandler()
+    {
+        MudDialogInstance?.Close(DialogResult.Ok(true));
+    }
+}

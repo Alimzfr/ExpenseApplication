@@ -1,0 +1,192 @@
+﻿<MudDataGrid T="ExpenseDto"
+             Items="Expenses"
+             Loading="Loading"
+             RowsPerPage="10"
+             Striped="false"
+             Hover="true"
+             SortMode="SortMode.None"
+             Breakpoint="Breakpoint.Sm"
+             Context="expenseContext">
+    <ToolBarContent>
+        <MudText Typo="Typo.body1">@Title</MudText>
+        <MudSpacer />
+        @if (IsRefreshButtonShow)
+        {
+            <RefreshButton OnRefresh="OnRefreshHandler" />
+        }
+    </ToolBarContent>
+    <Columns>
+        <HierarchyColumn T="ExpenseDto" />
+        <PropertyColumn Title="Trace Id" Property="expense => expense.TraceId" />
+        <PropertyColumn Title="Title" Property="expense => expense.Title" />
+        <PropertyColumn Title="Total Amount" Property="@(expense => expense.ExpenseItems.Sum(expenseItem => expenseItem.Amount).ToString("C", new CultureInfo(expense.CurrencyType.GetEnumDescription())))" />
+        <TemplateColumn Title="Expense Status">
+            <CellTemplate>
+                @if (context.Item.ExpenseStatus is ExpenseStatus.Pending)
+                {
+                    <MudChip T="ExpenseStatus"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small"
+                             Class="m-0">
+                        @ExpenseStatus.Pending
+                    </MudChip>
+                }
+                @if (context.Item.ExpenseStatus is ExpenseStatus.Approved)
+                {
+                    <MudChip T="ExpenseStatus"
+                             Color="Color.Success"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small"
+                             Class="m-0">
+                        @ExpenseStatus.Approved
+                    </MudChip>
+                }
+                @if (context.Item.ExpenseStatus is ExpenseStatus.Rejected)
+                {
+                    <MudChip T="ExpenseStatus"
+                             Color="Color.Error"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small"
+                             Class="m-0">
+                        @ExpenseStatus.Rejected
+                    </MudChip>
+                }
+                @if (context.Item.ExpenseStatus is ExpenseStatus.Paid)
+                {
+                    <MudChip T="ExpenseStatus"
+                             Color="Color.Info"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small"
+                             Class="m-0">
+                        @ExpenseStatus.Paid
+                    </MudChip>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Title="Created DateTime" Property="@(expense => expense.CreatedDate.ToString("f"))" />
+        <PropertyColumn Title="Description" Property="expense => expense.Description" />
+        <PropertyColumn Title="Comments" Property="expense => expense.Comments" />
+        <TemplateColumn Title="Actions" Hidden="!IsActionColumnShow">
+            <CellTemplate>
+                <div class="d-flex gap-2">
+                    @if (Actions.Contains(ExpenseActionType.Edit) && (context.Item.ExpenseStatus is ExpenseStatus.Pending or ExpenseStatus.Rejected))
+                    {
+                        <MudTooltip Text="Edit">
+                            <MudIconButton ButtonType="ButtonType.Button"
+                                           Size="Size.Small"
+                                           Variant="Variant.Filled"
+                                           Icon="@Icons.Material.Filled.Edit"
+                                           Color="Color.Warning"
+                                           OnClick="() => OnEditHandler(context.Item)"/>
+                        </MudTooltip>
+                    }
+                    @if (Actions.Contains(ExpenseActionType.Approve) && context.Item.ExpenseStatus is ExpenseStatus.Pending)
+                    {
+                        <MudTooltip Text="Approve">
+                            <MudIconButton ButtonType="ButtonType.Button"
+                                           Size="Size.Small"
+                                           Variant="Variant.Filled"
+                                           Icon="@Icons.Material.Filled.Check"
+                                           Color="Color.Success"
+                                           OnClick="() => OnApproveHandler(context.Item)"/>
+                        </MudTooltip>
+                    }
+                    @if (Actions.Contains(ExpenseActionType.Reject) && context.Item.ExpenseStatus is ExpenseStatus.Pending)
+                    {
+                        <MudTooltip Text="Reject">
+                            <MudIconButton ButtonType="ButtonType.Button"
+                                           Size="Size.Small"
+                                           Variant="Variant.Filled"
+                                           Icon="@Icons.Material.Filled.Close"
+                                           Color="Color.Error"
+                                           OnClick="() => OnRejectHandler(context.Item)"/>
+                        </MudTooltip>
+                    }
+                    @if (Actions.Contains(ExpenseActionType.Payment) && context.Item.ExpenseStatus is ExpenseStatus.Approved)
+                    {
+                        <MudTooltip Text="Payment">
+                            <MudIconButton ButtonType="ButtonType.Button"
+                                           Size="Size.Small"
+                                           Variant="Variant.Filled"
+                                           Icon="@Icons.Material.Filled.Payment"
+                                           Color="Color.Info"
+                                           OnClick="() => OnPayHandler(context.Item)"/>
+                        </MudTooltip>
+                    }
+                </div>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <ChildRowContent>
+        <ExpenseItemTable Title="Expense Form Items"
+                          ExpenseItems="expenseContext.Item.ExpenseItems"
+                          CurrencyType="expenseContext.Item.CurrencyType"
+                          IsActionColumnShow="false" />
+    </ChildRowContent>
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudDataGridPager T="ExpenseDto" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    [Parameter, EditorRequired]
+    public required string Title { get; set; }
+
+    [Parameter, EditorRequired]
+    public required List<ExpenseDto> Expenses { get; set; }
+
+    [Parameter]
+    public required ExpenseActionType[] Actions { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; } = false;
+
+    [Parameter]
+    public bool IsActionColumnShow { get; set; } = false;
+
+    [Parameter]
+    public bool IsRefreshButtonShow { get; set; } = false;
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    [Parameter]
+    public EventCallback<ExpenseDto> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<ExpenseDto> OnApprove { get; set; }
+
+    [Parameter]
+    public EventCallback<ExpenseDto> OnReject { get; set; }
+
+    [Parameter]
+    public EventCallback<ExpenseDto> OnPay { get; set; }
+
+    private async Task OnEditHandler(ExpenseDto? expense)
+    {
+        await OnEdit.InvokeAsync(expense);
+    }
+
+    private async Task OnApproveHandler(ExpenseDto? expense)
+    {
+        await OnApprove.InvokeAsync(expense);
+    }
+
+    private async Task OnRejectHandler(ExpenseDto? expense)
+    {
+        await OnReject.InvokeAsync(expense);
+    }
+
+    private async Task OnPayHandler(ExpenseDto? expense)
+    {
+        await OnPay.InvokeAsync(expense);
+    }
+
+    private async Task OnRefreshHandler()
+    {
+        await OnRefresh.InvokeAsync();
+    }
+}

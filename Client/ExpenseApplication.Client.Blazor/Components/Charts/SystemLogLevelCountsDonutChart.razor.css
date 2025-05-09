@@ -1,0 +1,11 @@
+﻿::deep .apexcharts-legend-text,
+::deep .apexcharts-title-text {
+    color: var(--mud-palette-text-primary) !important;
+    fill: var(--mud-palette-text-primary) !important;
+}
+
+::deep .apexcharts-title-text {
+    font-size: var(--mud-typography-body1-size) !important;
+    font-family: var(--mud-typography-body1-family) !important;
+    font-weight: var(--mud-typography-body1-weight) !important;
+}

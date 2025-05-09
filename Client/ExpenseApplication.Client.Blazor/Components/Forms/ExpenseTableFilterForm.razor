@@ -1,0 +1,74 @@
+﻿<EditForm Model="ExpenseRequestFilter" OnValidSubmit="OnSubmitHandler">
+    <FluentValidationValidator />
+    <div class="container-fluid p-0">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudTextField T="int?"
+                              Label="Trace Id"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              AutoFocus="true"
+                              Clearable="true"
+                              @bind-Value="ExpenseRequestFilter.TraceId"
+                              For="@(() => ExpenseRequestFilter.TraceId)" />
+            </div>
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudNumericField T="decimal?"
+                                 Label="Max Total Amount"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 Clearable="true"
+                                 @bind-Value="ExpenseRequestFilter.MaxTotalAmount"
+                                 For="@(() => ExpenseRequestFilter.MaxTotalAmount)" />
+            </div>
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudSelect T="CurrencyType?"
+                           Label="Currency Type"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           Clearable="true"
+                           @bind-Value="ExpenseRequestFilter.CurrencyType"
+                           For="@(() => ExpenseRequestFilter.CurrencyType)">
+                    @foreach (var currencyType in EnumHelper.GetEnumItems<CurrencyType>())
+                    {
+                        <MudSelectItem T="CurrencyType?" Value="@currencyType">@currencyType.ToString()</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudSelect T="ExpenseStatus?"
+                           Label="Expense Status"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           Clearable="true"
+                           @bind-Value="ExpenseRequestFilter.ExpenseStatus"
+                           For="@(() => ExpenseRequestFilter.ExpenseStatus)">
+                    @foreach (var expenseStatus in EnumHelper.GetEnumItems<ExpenseStatus>())
+                    {
+                        <MudSelectItem T="ExpenseStatus?" Value="@expenseStatus">@expenseStatus.ToString()</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+            <div class="col-12 text-end">
+                <MudButton Variant="Variant.Filled"
+                           ButtonType="ButtonType.Submit"
+                           Color="Color.Success">
+                    Search
+                </MudButton>    
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public ExpenseRequestFilterDto ExpenseRequestFilter { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public EventCallback<ExpenseRequestFilterDto> OnSubmit { get; set; }
+
+    private async Task OnSubmitHandler()
+    {
+        await OnSubmit.InvokeAsync(ExpenseRequestFilter);
+    }
+}

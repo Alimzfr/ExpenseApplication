@@ -1,0 +1,87 @@
+﻿@inherits FluxorComponent
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IDispatcher Dispatcher
+@inject IState<DarkModeState> ApplicationSettingState
+
+<MudAppBar Elevation="1">
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="DrawerToggleHandler" />
+    <ExpenseIcon Width="50" Height="50" Class="d-sm-block d-none" />
+    <MudText Typo="Typo.h6" Class="ml-3">Expense Application</MudText>
+    <MudSpacer />
+    <MudPaper Elevation="0" Class="mud-transparent">
+        <DarkModeButton IsDarkMode="IsDarkModeEnable" IsDarkModeChanged="OnSwitchDarkModeHandler" />
+        <LogoutButton OnLogout="OnLogoutHandler" />
+    </MudPaper>
+</MudAppBar>
+<MudDrawer @bind-Open="DrawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+    <MudCard Outlined="false" Square="false" Elevation="0" Class="d-flex align-items-center justify-content-center">
+        <UserIcon Width="150" Height="150" />
+        <MudCardContent Class="text-center mt-n9">
+            <MudText Typo="Typo.caption">@($"{UserDisplayName} ({UserRole})")</MudText>
+        </MudCardContent>
+    </MudCard>
+    <MudNavMenu>
+        <MudDivider />
+        <MudNavLink Href="@PageAddressConstants.HomePage" Match="NavLinkMatch.All">Home</MudNavLink>
+        <AuthorizeView Roles="@CustomRoleConstants.Employee">
+            <MudNavLink Href="@PageAddressConstants.EmployeeExpensesPage" Match="NavLinkMatch.All">Expenses</MudNavLink>
+        </AuthorizeView>
+        <AuthorizeView Roles="@CustomRoleConstants.Manager">
+            <MudNavLink Href="@PageAddressConstants.ManagerExpensesPage" Match="NavLinkMatch.All">Expenses</MudNavLink>
+        </AuthorizeView>
+        <AuthorizeView Roles="@CustomRoleConstants.Accountant">
+            <MudNavLink Href="@PageAddressConstants.AccountantExpensesPage" Match="NavLinkMatch.All">Expenses</MudNavLink>
+        </AuthorizeView>
+        <AuthorizeView Roles="@CustomRoleConstants.Admin">
+            <MudNavLink Href="@PageAddressConstants.DashboardPage" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+            <MudNavLink Href="@PageAddressConstants.AdminExpensesPage" Match="NavLinkMatch.All">Expenses</MudNavLink>
+            <MudNavLink Href="@PageAddressConstants.TransactionsPage" Match="NavLinkMatch.All">Transactions</MudNavLink>
+            <MudNavLink Href="@PageAddressConstants.LogsPage" Match="NavLinkMatch.All">Logs</MudNavLink>
+        </AuthorizeView>
+    </MudNavMenu>
+</MudDrawer>
+
+@code
+{
+    private bool IsDarkModeEnable => ApplicationSettingState.Value.IsDarkModeEnable;
+    private bool DrawerOpen = true;
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private string? UserDisplayName = null;
+    private string? UserRole = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UserInformationConfigure();
+        await base.OnInitializedAsync();
+    }
+
+    private void OnSwitchDarkModeHandler(bool isDarkModeEnable)
+    {
+        Dispatcher.Dispatch(new DarkModeActions.SwitchIsDarkModeEnableAction(isDarkModeEnable, cancellationTokenSource.Token));
+    }
+
+    private void DrawerToggleHandler()
+    {
+        DrawerOpen = !DrawerOpen;
+    }
+
+    private void OnLogoutHandler()
+    {
+        Dispatcher.Dispatch(new LogoutActions.SubmitLogoutAction(cancellationTokenSource.Token));
+    }
+
+    private async Task UserInformationConfigure()
+    {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var displayName = authenticationState?.User?.Claims?.FirstOrDefault(x => x.Type == "DisplayName")?.Value;
+        UserDisplayName = displayName;
+        var role = authenticationState?.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+        UserRole = role;
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

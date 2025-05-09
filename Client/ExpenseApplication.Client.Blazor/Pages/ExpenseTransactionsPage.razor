@@ -1,0 +1,55 @@
+﻿@attribute [Route(PageAddressConstants.TransactionsPage)]
+@attribute [Authorize(Roles = CustomRoleConstants.Admin)]
+@layout MainLayout
+@inherits FluxorComponent
+@inject IDispatcher Dispatcher
+@inject IState<ExpenseTransactionsState> ExpenseTransactionsState
+<PageTitle>Expense transaction</PageTitle>
+
+<PageHeader Title="Transactions" Icon="@Icons.Material.Filled.MultipleStop" />
+
+<MudExpansionPanels Class="mb-4">
+    <MudExpansionPanel Text="Filter">
+        <ExpenseTransactionTableFilterForm ExpenseTransactionRequestFilter="ExpenseTransactionRequestFilter" OnSubmit="OnExpenseTransactionTableFilterFormSubmitHandler" />
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+<ExpenseTransactionTable Title="Expense Transactions"
+                         ExpenseTransactions="ExpenseTransactions"
+                         IsRefreshButtonShow="true"
+                         OnRefresh="OnRefreshClickHandler"
+                         Loading="ExpenseTransactionsLoading" />
+
+@code {
+    private bool ExpenseTransactionsLoading => ExpenseTransactionsState.Value.Loading;
+    private bool ExpenseTransactionsInitialized => ExpenseTransactionsState.Value.Initialized;
+    private List<ExpenseTransactionDto> ExpenseTransactions => ExpenseTransactionsState.Value.ExpenseTransactions;
+    private ExpenseTransactionRequestFilterDto ExpenseTransactionRequestFilter => ExpenseTransactionsState.Value.ExpenseTransactionRequestFilter;
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    protected override void OnInitialized()
+    {
+        if (!ExpenseTransactionsInitialized)
+        {
+            Dispatcher.Dispatch(new ExpenseTransactionsActions.LoadExpenseTransactionsAction(ExpenseTransactionRequestFilter, cancellationTokenSource.Token));
+        }
+        base.OnInitialized();
+    }
+
+    private void OnExpenseTransactionTableFilterFormSubmitHandler(ExpenseTransactionRequestFilterDto expenseTransactionRequestFilter)
+    {
+        Dispatcher.Dispatch(new ExpenseTransactionsActions.LoadExpenseTransactionsAction(expenseTransactionRequestFilter, cancellationTokenSource.Token));
+    }
+
+    private void OnRefreshClickHandler()
+    {
+        Dispatcher.Dispatch(new ExpenseTransactionsActions.LoadExpenseTransactionsAction(ExpenseTransactionRequestFilter, cancellationTokenSource.Token));
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

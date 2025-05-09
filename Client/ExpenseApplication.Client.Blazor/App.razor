@@ -1,0 +1,56 @@
+﻿@inherits FluxorComponent
+@inject IState<DarkModeState> ApplicationSettingState
+@inject IDispatcher Dispatcher
+
+<Fluxor.Blazor.Web.StoreInitializer />
+<MudThemeProvider IsDarkMode="IsDarkModeEnable" />
+<MudDialogProvider MaxWidth="MaxWidth.Small" FullWidth="true" />
+<MudSnackbarProvider />
+<MudPopoverProvider />
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData">
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <PageTitle>Access denied</PageTitle>
+                        <MudAlert>You are not authorized to access this resource.</MudAlert>
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <MudAlert>Sorry, there's nothing at this address.</MudAlert>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+
+@code
+{
+    private bool IsDarkModeEnable => ApplicationSettingState.Value.IsDarkModeEnable;
+    private bool IsApplicationSettingStateInitialized => ApplicationSettingState.Value.Initialized;
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    protected override void OnInitialized()
+    {
+        if (!IsApplicationSettingStateInitialized)
+        {
+            Dispatcher.Dispatch(new DarkModeActions.LoadIsDarkModeEnableAction(cancellationTokenSource.Token));
+        }
+        base.OnInitialized();
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

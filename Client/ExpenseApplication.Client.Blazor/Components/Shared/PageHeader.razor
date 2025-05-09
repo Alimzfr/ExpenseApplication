@@ -1,0 +1,25 @@
+﻿<MudPaper Class="p-3 mb-4">
+    <MudText Class="d-flex align-items-center justify-content-between gap-1">
+        <div class="d-flex align-items-center gap-1 py-3">
+            <MudIcon Icon="@Icon" />
+            <b>@Title</b>
+        </div>
+        <div>
+            @if (ChildContent is not null)
+            {
+                @ChildContent
+            }
+        </div>
+    </MudText>
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Icon { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

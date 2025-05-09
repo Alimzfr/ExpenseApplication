@@ -1,0 +1,48 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Security.Claims
+@using System.Globalization
+
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.AspNetCore.Components.Authorization
+
+@using ExpenseApplication.Client.Blazor
+@using ExpenseApplication.Client.Blazor.Layout
+@using ExpenseApplication.Client.Blazor.Layout.MainLayout
+@using ExpenseApplication.Client.Blazor.Layout.AuthenticationLayout
+
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@using MudBlazor
+@using Blazored.LocalStorage
+@using Blazored.FluentValidation
+@using TTT.AspNet.Blazor.JsonViewer
+
+@using ExpenseApplication.Common
+@using ExpenseApplication.Common.DataTransferObjects
+@using ExpenseApplication.Common.Constants
+@using ExpenseApplication.Common.Enums
+@using ExpenseApplication.Client.Helper
+@using ExpenseApplication.Client.Blazor.Components.Dialogs
+@using ExpenseApplication.Client.Blazor.Components.Shared
+@using ExpenseApplication.Client.Blazor.Components.Buttons
+@using ExpenseApplication.Client.Blazor.Components.Icons
+@using ExpenseApplication.Client.Blazor.Components.Forms
+@using ExpenseApplication.Client.Blazor.Components.Tables
+@using ExpenseApplication.Client.Blazor.Components.Charts
+@using ExpenseApplication.Client.StateManagement.LoginUseCase
+@using ExpenseApplication.Client.StateManagement.LogoutUseCase
+@using ExpenseApplication.Client.StateManagement.AccountantExpensesUseCase
+@using ExpenseApplication.Client.StateManagement.ManagerExpensesUseCase
+@using ExpenseApplication.Client.StateManagement.ExpenseTransactionsUseCase
+@using ExpenseApplication.Client.StateManagement.AdminExpensesUseCase
+@using ExpenseApplication.Client.StateManagement.EmployeeExpensesUseCase
+@using ExpenseApplication.Client.StateManagement.LogsUseCase
+@using ExpenseApplication.Client.StateManagement.ReportsUseCase
+@using ExpenseApplication.Client.StateManagement.DarkModeUseCase

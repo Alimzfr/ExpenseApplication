@@ -1,0 +1,17 @@
+﻿<MudTooltip Text="Refresh">
+    <MudIconButton Variant="Variant.Filled"
+                   Color="Color.Default"
+                   Size="Size.Medium"
+                   Icon="@Icons.Material.Filled.Refresh"
+                   OnClick="OnRefreshClickHandler" />
+</MudTooltip>
+
+@code {
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private async Task OnRefreshClickHandler()
+    {
+        await OnRefresh.InvokeAsync();
+    }
+}

@@ -1,0 +1,34 @@
+﻿@if (IsDarkMode)
+{
+    <MudTooltip Text="Light Mode">
+        <MudIconButton Variant="Variant.Filled"
+                       Color="Color.Default"
+                       Size="Size.Medium"
+                       Icon="@Icons.Material.Filled.LightMode"
+                       OnClick="() => OnSwitchDarkModeHandler(false)" />
+    </MudTooltip>
+}
+else
+{
+    <MudTooltip Text="Dark Mode">
+        <MudIconButton Variant="Variant.Filled"
+                       Color="Color.Default"
+                       Size="Size.Medium"
+                       Icon="@Icons.Material.Filled.DarkMode"
+                       OnClick="() => OnSwitchDarkModeHandler(true)" />
+    </MudTooltip>
+}
+
+@code {
+
+    [Parameter]
+    public bool IsDarkMode { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsDarkModeChanged { get; set; }
+
+    private async Task OnSwitchDarkModeHandler(bool isDarkModeEnableObject)
+    {
+        await IsDarkModeChanged.InvokeAsync(isDarkModeEnableObject);
+    }
+}

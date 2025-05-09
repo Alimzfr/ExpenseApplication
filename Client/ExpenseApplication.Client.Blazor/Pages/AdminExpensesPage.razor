@@ -1,0 +1,57 @@
+﻿@attribute [Route(PageAddressConstants.AdminExpensesPage)]
+@attribute [Authorize(Roles = CustomRoleConstants.Admin)]
+@layout MainLayout
+@inherits FluxorComponent
+@inject IState<AdminExpensesState> AdminExpensesState
+@inject IDispatcher Dispatcher
+<PageTitle>Expenses</PageTitle>
+
+<PageHeader Title="Expenses" Icon="@Icons.Material.Filled.CurrencyExchange" />
+
+<MudExpansionPanels Class="mb-4">
+    <MudExpansionPanel Text="Filter">
+        <ExpenseTableFilterForm ExpenseRequestFilter="ExpenseRequestFilter" OnSubmit="OnExpenseTableFilterFormSubmitHandler" />
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+<ExpenseTable Title="Expense Forms"
+              Expenses="Expenses"
+              IsActionColumnShow="false"
+              IsRefreshButtonShow="true"
+              OnRefresh="OnRefreshClickHandler"
+              Loading="AdminExpensesLoading" />
+
+@code {
+    private bool AdminExpensesLoading => AdminExpensesState.Value.Loading;
+    private bool AdminExpensesInitialized => AdminExpensesState.Value.Initialized;
+    private List<ExpenseDto> Expenses => AdminExpensesState.Value.AdminExpenses;
+    private ExpenseRequestFilterDto ExpenseRequestFilter => AdminExpensesState.Value.ExpenseRequestFilter;
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    protected override void OnInitialized()
+    {
+        if (!AdminExpensesInitialized)
+        {
+            Dispatcher.Dispatch(new AdminExpensesActions.LoadAdminExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+        }
+
+        base.OnInitialized();
+    }
+
+    private void OnExpenseTableFilterFormSubmitHandler(ExpenseRequestFilterDto expenseRequestFilter)
+    {
+        Dispatcher.Dispatch(new AdminExpensesActions.LoadAdminExpensesAction(expenseRequestFilter, cancellationTokenSource.Token));
+    }
+
+    private void OnRefreshClickHandler()
+    {
+        Dispatcher.Dispatch(new AdminExpensesActions.LoadAdminExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

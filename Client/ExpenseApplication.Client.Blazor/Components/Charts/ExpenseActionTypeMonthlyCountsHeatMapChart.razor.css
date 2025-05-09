@@ -1,0 +1,22 @@
+﻿::deep .apexcharts-legend-text,
+::deep .apexcharts-title-text,
+::deep .apexcharts-text,
+::deep .apexcharts-tooltip-text,
+::deep .apexcharts-tooltip-title,
+::deep .apexcharts-menu-item {
+    color: var(--mud-palette-text-primary) !important;
+    fill: var(--mud-palette-text-primary) !important;
+}
+
+
+::deep .apexcharts-menu,
+::deep .apexcharts-tooltip,
+::deep .apexcharts-tooltip-title {
+    background-color: var(--mud-palette-background) !important;
+}
+
+::deep .apexcharts-title-text {
+    font-size: var(--mud-typography-body1-size) !important;
+    font-family: var(--mud-typography-body1-family) !important;
+    font-weight: var(--mud-typography-body1-weight) !important;
+}

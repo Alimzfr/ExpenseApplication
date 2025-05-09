@@ -1,0 +1,5 @@
+﻿namespace ExpenseApplication.Server.Application.Features.AdminExpenseUseCase.Queries.GetTotalPaidExpensesMonthlyAmountReport;
+
+public record GetTotalPaidExpensesMonthlyAmountReportQuery(int Year) : IQuery<GetTotalPaidExpensesMonthlyAmountReportQueryResult>;
+
+public record GetTotalPaidExpensesMonthlyAmountReportQueryResult(List<TotalPaidExpensesMonthlyAmountDto> TotalPaidExpensesMonthlyAmounts);

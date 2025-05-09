@@ -1,0 +1,94 @@
+﻿<EditForm Model="ExpenseForm" OnValidSubmit="OnSubmitHandler" @ref="ExpenseFormRef">
+    <FluentValidationValidator />
+    <MudPaper Class="p-3 mb-4">
+        <MudText Typo="Typo.body1" Class="mb-4">Basic Information</MudText>
+        <div class="container-fluid p-0">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-12 mb-md-0 mb-4">
+                    <MudTextField T="string"
+                                  Label="Title"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  AutoFocus="true"
+                                  @bind-Value="ExpenseForm.Title"
+                                  For="@(() => ExpenseForm.Title)" />
+                </div>
+                <div class="col-lg-3 col-md-6 col-12 mb-md-0 mb-4">
+                    <MudSelect T="CurrencyType"
+                               Label="Currency Type"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               @bind-Value="ExpenseForm.CurrencyType"
+                               For="@(() => ExpenseForm.CurrencyType)">
+                        @foreach (var currencyType in EnumHelper.GetEnumItems<CurrencyType>())
+                        {
+                            <MudSelectItem T="CurrencyType" Value="@currencyType">@currencyType.ToString()</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+                <div class="col-lg-6 col-md-12 col-12 mb-md-0 mb-4">
+                    <MudTextField T="string?"
+                                  Label="Description"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  Clearable="true"
+                                  @bind-Value="ExpenseForm.Description"
+                                  For="@(() => ExpenseForm.Description)" />
+                </div>
+            </div>
+        </div>
+    </MudPaper>
+    <MudPaper Class="p-3 mb-4">
+        <MudText Typo="Typo.body1" Class="mb-4">Detail Information</MudText>
+        <div class="mb-4">
+            <ExpenseItemRequestForm CurrencyType="ExpenseForm.CurrencyType" OnAdd="OnExpenseItemAddHandler" />
+        </div>
+        <div>
+            <ExpenseItemTable Title="Expense Form Items"
+                              ExpenseItems="ExpenseForm.ExpenseItems"
+                              CurrencyType="ExpenseForm.CurrencyType"
+                              IsActionColumnShow="true"
+                              OnRemove="OnExpenseItemRemoveHandler" />
+            <div class="mud-input-control-helper-container px-2">
+                <div class="d-flex mud-input-helper-text mud-input-error">
+                    <ValidationMessage AdditionalAttributes="@(new Dictionary<string, object>{{"class","me-auto"}})" For="() => ExpenseForm.ExpenseItems" />
+                </div>
+            </div>
+        </div>
+    </MudPaper>
+    <MudPaper Class="d-flex flex-md-row flex-column justify-md-space-between  p-3">
+        <MudText Typo="Typo.body1" Class="py-1"><b>Total Amount: @ExpenseForm.ExpenseItems.Sum(expenseItem => expenseItem.Amount).ToString("C", new CultureInfo(ExpenseForm.CurrencyType.GetEnumDescription()))</b></MudText>
+        <MudButton Variant="Variant.Filled"
+                   ButtonType="ButtonType.Submit"
+                   Color="Color.Success">
+            Submit
+        </MudButton>
+    </MudPaper>
+</EditForm>
+
+@code {
+    [Parameter]
+    public ExpenseFormDto ExpenseForm { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public EventCallback<ExpenseFormDto> OnSubmit { get; set; }
+
+    private EditForm ExpenseFormRef;
+
+    private void OnExpenseItemAddHandler(ExpenseItemDto expenseItem)
+    {
+        ExpenseForm.ExpenseItems.Add(expenseItem);
+        ExpenseFormRef?.EditContext?.Validate();
+    }
+
+    private void OnExpenseItemRemoveHandler(ExpenseItemDto expenseItem)
+    {
+        ExpenseForm.ExpenseItems.Remove(expenseItem);
+        ExpenseFormRef?.EditContext?.Validate();
+    }
+
+    private async Task OnSubmitHandler()
+    {
+        await OnSubmit.InvokeAsync(ExpenseForm);
+    }
+}

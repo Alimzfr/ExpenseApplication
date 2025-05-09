@@ -1,0 +1,38 @@
+﻿@attribute [Route(PageAddressConstants.LoginPage)]
+@layout AuthenticationLayout
+@inherits FluxorComponent
+@inject IState<LoginState> LoginState
+@inject IDispatcher Dispatcher
+<PageTitle>Login</PageTitle>
+
+<div class="container py-6">
+    <div class="row justify-content-center">
+        <MudCard Class="col-lg-4 col-md-6 col-12">
+            <MudCardContent>
+                <Loading IsLoading="LoginLoading" />
+                <MudText>Please enter your credentials</MudText>
+                <LoginForm OnSubmit="OnSubmitLoginFormHandler" />
+            </MudCardContent>
+        </MudCard>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    private bool LoginLoading => LoginState.Value.Loading;
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    private void OnSubmitLoginFormHandler(LoginFormDto loginForm)
+    {
+        Dispatcher.Dispatch(new LoginActions.SubmitLoginUsernamePasswordFormAction(loginForm, ReturnUrl, cancellationTokenSource.Token));
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

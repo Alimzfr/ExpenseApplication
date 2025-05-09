@@ -1,0 +1,53 @@
+﻿<MudDataGrid T="ExpenseItemDto"
+             Items="ExpenseItems"
+             RowsPerPage="10"
+             Striped="false"
+             Hover="true"
+             SortMode="SortMode.None"
+             Breakpoint="Breakpoint.Sm">
+    <ToolBarContent>
+        <MudText Typo="Typo.body1">@Title</MudText>
+        <MudSpacer />
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Title="Purpose" Property="expense => expense.Purpose" />
+        <PropertyColumn Title="Amount" Property="@(expense => expense.Amount.ToString("C", new CultureInfo(CurrencyType.GetEnumDescription())))" />
+        <TemplateColumn Title="Actions" Hidden="!IsActionColumnShow">
+            <CellTemplate>
+                <MudTooltip Text="Remove">
+                    <MudIconButton ButtonType="ButtonType.Button"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Error"
+                                   Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.DeleteOutline"
+                                   OnClick="() => OnRemoveClickHandler(context.Item)" />
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+</MudDataGrid>
+
+@code {
+    [Parameter, EditorRequired]
+    public required string Title { get; set; }
+
+    [Parameter, EditorRequired]
+    public List<ExpenseItemDto> ExpenseItems { get; set; }
+
+    [Parameter, EditorRequired]
+    public CurrencyType CurrencyType { get; set; }
+
+    [Parameter]
+    public bool IsActionColumnShow { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<ExpenseItemDto> OnRemove { get; set; }
+
+    private async Task OnRemoveClickHandler(ExpenseItemDto? expenseItem)
+    {
+        await OnRemove.InvokeAsync(expenseItem);
+    }
+}

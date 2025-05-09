@@ -1,0 +1,5 @@
+﻿namespace ExpenseApplication.Server.Application.Features.AdminExpenseUseCase.Queries.GetSystemLogLevelCountReport;
+
+public record GetSystemLogLevelCountReportQuery : IQuery<GetSystemLogLevelCountReportQueryResult>;
+
+public record GetSystemLogLevelCountReportQueryResult(List<SystemLogLevelCountDto> SystemLogLevelCounts);

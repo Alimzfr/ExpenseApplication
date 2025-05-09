@@ -1,0 +1,5 @@
+﻿namespace ExpenseApplication.Server.Application.Features.AdminExpenseUseCase.Queries.GetExpenseStatusTypeMonthlyCountReport;
+
+public record GetExpenseStatusTypeMonthlyCountReportQuery(int Year) : IQuery<GetExpenseStatusTypeMonthlyCountReportQueryResult>;
+
+public record GetExpenseStatusTypeMonthlyCountReportQueryResult(List<ExpenseStatusTypeMonthlyCountDto> ExpenseStatusTypeMonthlyCounts);

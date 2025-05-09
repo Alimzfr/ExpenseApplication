@@ -1,0 +1,106 @@
+﻿<MudDataGrid T="ExpenseTransactionDto"
+             Items="ExpenseTransactions"
+             Loading="Loading"
+             RowsPerPage="10"
+             Striped="false"
+             Hover="true"
+             SortMode="SortMode.None"
+             Breakpoint="Breakpoint.Sm"
+             Context="expenseContext">
+    <ToolBarContent>
+        <MudText Typo="Typo.body1">@Title</MudText>
+        <MudSpacer />
+        @if (IsRefreshButtonShow)
+        {
+            <RefreshButton OnRefresh="OnRefreshHandler" />
+        }
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Title="Expense Trace Id" Property="expense => expense.ExpenseTraceId"/>
+        <PropertyColumn Title="Expense By" Property="expense => expense.ExpenseUsername"/>
+        <PropertyColumn Title="Transacted By" Property="expense => expense.TransactedByUsername"/>
+        <TemplateColumn Title="Action Type">
+            <CellTemplate>
+                @if (context.Item.ActionType is ExpenseActionType.Submit)
+                {
+                    <MudChip T="ExpenseActionType"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small"
+                             Class="m-0">
+                        @ExpenseActionType.Submit
+                    </MudChip>
+                }
+                @if (context.Item.ActionType is ExpenseActionType.Edit)
+                {
+                    <MudChip T="ExpenseActionType"
+                             Color="Color.Warning"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small"
+                             Class="m-0">
+                        @ExpenseActionType.Edit
+                    </MudChip>
+                }
+                @if (context.Item.ActionType is ExpenseActionType.Approve)
+                {
+                    <MudChip T="ExpenseActionType"
+                             Color="Color.Success"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small"
+                             Class="m-0">
+                        @ExpenseActionType.Approve
+                    </MudChip>
+                }
+                @if (context.Item.ActionType is ExpenseActionType.Reject)
+                {
+                    <MudChip T="ExpenseActionType"
+                             Color="Color.Error"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small"
+                             Class="m-0">
+                        @ExpenseActionType.Reject
+                    </MudChip>
+                }
+                @if (context.Item.ActionType is ExpenseActionType.Payment)
+                {
+                    <MudChip T="ExpenseActionType"
+                             Color="Color.Info"
+                             Variant="Variant.Outlined"
+                             Size="Size.Small"
+                             Class="m-0">
+                        @ExpenseActionType.Payment
+                    </MudChip>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Title="Action DateTime" Property="@(expense => expense.ActionDateTime.ToString("f"))"/>
+        <PropertyColumn Title="Comments" Property="expense => expense.Comments"/>
+    </Columns>
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudDataGridPager T="ExpenseTransactionDto"/>
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    [Parameter, EditorRequired]
+    public required string Title { get; set; }
+
+    [Parameter, EditorRequired]
+    public required List<ExpenseTransactionDto> ExpenseTransactions { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; } = false;
+
+    [Parameter]
+    public bool IsRefreshButtonShow { get; set; } = false;
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private async Task OnRefreshHandler()
+    {
+        await OnRefresh.InvokeAsync();
+    }
+}

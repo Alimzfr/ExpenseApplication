@@ -1,0 +1,19 @@
+﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.Uri;
+        var escapedUri = Uri.EscapeDataString(uri);
+        if (string.IsNullOrWhiteSpace(escapedUri) || uri.Contains(PageAddressConstants.LoginPage))
+        {
+            NavigationManager.NavigateToLogin(PageAddressConstants.LoginPage);
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"{PageAddressConstants.LoginPage}?ReturnUrl={escapedUri}");
+        }
+    }
+}

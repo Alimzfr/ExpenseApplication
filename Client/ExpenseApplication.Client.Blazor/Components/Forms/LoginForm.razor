@@ -1,0 +1,59 @@
+﻿<EditForm Model="loginForm" OnValidSubmit="OnSubmitHandler">
+    <FluentValidationValidator />
+
+    <MudTextField Label="Username"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  AutoFocus="true"
+                  Class="mb-4"
+                  @bind-Value="loginForm.Username"
+                  For="@(() => loginForm.Username)" />
+
+    <MudTextField Label="Password"
+                  InputType="passwordInputType"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  Adornment="Adornment.End"
+                  AdornmentIcon="@passwordInputIcon"
+                  OnAdornmentClick="ShowPasswordToggleHandler"
+                  AdornmentAriaLabel="Show Password"
+                  Class="mb-4"
+                  @bind-Value="loginForm.Password"
+                  For="@(() => loginForm.Password)" />
+
+    <MudButton Variant="Variant.Filled"
+               ButtonType="ButtonType.Submit"
+               Color="Color.Success"
+               FullWidth="true">
+        Login
+    </MudButton>
+</EditForm>
+
+@code {
+    [Parameter]
+    public EventCallback<LoginFormDto> OnSubmit { get; set; }
+
+    private LoginFormDto loginForm = new();
+    private InputType passwordInputType = InputType.Password;
+    private string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    private async Task OnSubmitHandler()
+    {
+        await OnSubmit.InvokeAsync(loginForm);
+    }
+
+    private void ShowPasswordToggleHandler()
+    {
+        switch (passwordInputType)
+        {
+            case InputType.Password:
+                passwordInputIcon = Icons.Material.Filled.Visibility;
+                passwordInputType = InputType.Text;
+                break;
+            case InputType.Text:
+                passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+                passwordInputType = InputType.Password;
+                break;
+        }
+    }
+}

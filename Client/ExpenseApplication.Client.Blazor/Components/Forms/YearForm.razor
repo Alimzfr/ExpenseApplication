@@ -1,0 +1,49 @@
+﻿<EditForm Model="yearForm" OnValidSubmit="OnSubmitHandler">
+    <FluentValidationValidator />
+    <div class="d-flex flex-row align-items-center gap-2">
+        <div class="flex-grow-1">
+            <MudDatePicker Label="Year"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           OpenTo="OpenTo.Year"
+                           FixMonth="@DateTime.Today.Month"
+                           FixDay="@DateTime.Today.Day"
+                           DateFormat="yyyy"
+                           ShowWeekNumbers="false"
+                           ShowToolbar="false"
+                           @bind-Date="yearForm.Year"
+                           For="@(() => yearForm.Year)" />
+        </div>
+        <div>
+            <MudButton Variant="Variant.Filled"
+                       ButtonType="ButtonType.Submit"
+                       Color="Color.Success">
+                Submit
+            </MudButton>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public EventCallback<int> OnSubmit { get; set; }
+
+    [Parameter]
+    public int InitialYear { get; set; } = DateTime.Now.Year;
+
+    private YearFormDto yearForm = new();
+
+    protected override void OnInitialized()
+    {
+        yearForm.Year = new DateTime(InitialYear, 1, 1);
+        base.OnInitialized();
+    }
+
+    private async Task OnSubmitHandler(EditContext obj)
+    {
+        if (yearForm.Year.HasValue)
+        {
+            await OnSubmit.InvokeAsync(yearForm.Year.Value.Year);
+        }
+    }
+}

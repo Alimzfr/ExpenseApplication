@@ -1,0 +1,71 @@
+﻿@attribute [Route(PageAddressConstants.ExpenseRequestPage)]
+@attribute [Authorize(Roles = CustomRoleConstants.Employee)]
+@layout MainLayout
+@inherits FluxorComponent
+@inject IDispatcher Dispatcher
+@inject IDialogService DialogService
+@inject IState<EmployeeExpensesState> EmployeeExpensesState
+<PageTitle>Expense request</PageTitle>
+
+<PageHeader Title="@(isEditMode ? "Edit expense request": "Create expense request")" Icon="@Icons.Material.Outlined.DocumentScanner" />
+
+<Loading IsLoading="EmployeeExpensesLoading" />
+<ExpenseRequestForm ExpenseForm="EmployeeEditingExpense" OnSubmit="OnSubmitExpenseRequestHandler" />
+
+@code {
+    [SupplyParameterFromQuery]
+    public int? ExpenseId { get; set; }
+
+    private bool EmployeeExpensesLoading => EmployeeExpensesState.Value.Loading;
+    private ExpenseFormDto EmployeeEditingExpense => EmployeeExpensesState.Value.EmployeeEditingExpense;
+
+    private bool isEditMode = false;
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    protected override void OnInitialized()
+    {
+        if (ExpenseId is not null)
+        {
+            isEditMode = true;
+            Dispatcher.Dispatch(new EmployeeExpensesActions.LoadEmployeeEditingExpenseAction(ExpenseId.Value, cancellationTokenSource.Token));
+        }
+        base.OnInitialized();
+    }
+
+    private async Task OnSubmitExpenseRequestHandler(ExpenseFormDto expenseForm)
+    {
+        if (isEditMode)
+        {
+            var confirmationDialogParameters = new DialogParameters<ConfirmationDialog>
+            {
+                { confirmationDialog => confirmationDialog.Content, $"Are you sure to submit edit the expense form?" }
+            };
+            var confirmationDialogReference = await DialogService.ShowAsync<ConfirmationDialog>("Edit Expense Form", confirmationDialogParameters);
+            var confirmationDialogResult = await confirmationDialogReference.GetReturnValueAsync<bool?>();
+            if (confirmationDialogResult is true)
+            {
+                Dispatcher.Dispatch(new EmployeeExpensesActions.SubmitEditExpenseAction(expenseForm, cancellationTokenSource.Token));
+            }
+        }
+        else
+        {
+            var confirmationDialogParameters = new DialogParameters<ConfirmationDialog>
+            {
+                { confirmationDialog => confirmationDialog.Content, "Are you sure to submit create new expense form?" }
+            };
+            var confirmationDialogReference = await DialogService.ShowAsync<ConfirmationDialog>("Create New Expense Form", confirmationDialogParameters);
+            var confirmationDialogResult = await confirmationDialogReference.GetReturnValueAsync<bool?>();
+            if (confirmationDialogResult is true)
+            {
+                Dispatcher.Dispatch(new EmployeeExpensesActions.SubmitCreateExpenseAction(expenseForm, cancellationTokenSource.Token));
+            }
+        }
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        Dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeEditingExpenseAction(new ExpenseFormDto()));
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

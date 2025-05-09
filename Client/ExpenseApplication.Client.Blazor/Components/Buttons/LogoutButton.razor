@@ -1,0 +1,17 @@
+﻿<MudTooltip Text="Logout">
+    <MudIconButton Variant="Variant.Filled"
+                   Color="Color.Secondary"
+                   Size="Size.Medium"
+                   Icon="@Icons.Material.Filled.Logout"
+                   OnClick="LogoutHandler" />
+</MudTooltip>
+
+@code {
+    [Parameter]
+    public EventCallback OnLogout { get; set; }
+
+    private async Task LogoutHandler()
+    {
+        await OnLogout.InvokeAsync();
+    }
+}

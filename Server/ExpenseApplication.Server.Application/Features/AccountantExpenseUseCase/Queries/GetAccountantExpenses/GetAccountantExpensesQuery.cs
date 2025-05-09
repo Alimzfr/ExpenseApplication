@@ -1,0 +1,5 @@
+﻿namespace ExpenseApplication.Server.Application.Features.AccountantExpenseUseCase.Queries.GetAccountantExpenses;
+
+public record GetAccountantExpensesQuery(ExpenseRequestFilterDto ExpenseRequestFilter) : IQuery<GetAccountantExpensesQueryResult>;
+
+public record GetAccountantExpensesQueryResult(List<ExpenseDto> Expenses);

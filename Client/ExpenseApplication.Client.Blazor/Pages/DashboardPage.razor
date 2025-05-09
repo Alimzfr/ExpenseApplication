@@ -1,0 +1,171 @@
+﻿@attribute [Route(PageAddressConstants.DashboardPage)]
+@attribute [Authorize(Roles = CustomRoleConstants.Admin)]
+@layout MainLayout
+@inherits FluxorComponent
+@inject IState<ReportsState> ReportsState
+@inject IDispatcher Dispatcher
+<PageTitle>Dashboard</PageTitle>
+
+<PageHeader Title="Dashboard" Icon="@Icons.Material.Filled.Dashboard" />
+
+<div class="containet-fluid m-0 p-0">
+    <div class="row gx-3">
+        <div class="col-lg-6 col-12 mb-4">
+            <Loading IsLoading="ExpenseStatusTypeCountsLoading" />
+            <MudPaper Class="p-3">
+                <div class="row">
+                    <div class="col-12 d-flex align-items-center justify-content-between mb-4">
+                        <MudText>Expense Requests</MudText>
+                        <RefreshButton OnRefresh="OnExpenseRequestsRefreshHandler" />
+                    </div>
+                </div>
+                <div class="row gap-3">
+                    @foreach (var expenseStatusTypeCount in ExpenseStatusTypeCounts)
+                    {
+                        <div class="col-12">
+                            <MudCard Class="@getCardColorCalsses(expenseStatusTypeCount.ExpenseStatus)">
+                                <MudCardContent Class="d-flex flex-column">
+                                    <MudTooltip Text="Expense Status" Placement="Placement.Right">
+                                        <MudText>@expenseStatusTypeCount.ExpenseStatus</MudText>
+                                    </MudTooltip>
+                                    <MudTooltip Text="Count of Requests" Placement="Placement.Right">
+                                        <MudText>@expenseStatusTypeCount.Count</MudText>
+                                    </MudTooltip>
+                                </MudCardContent>
+                            </MudCard>
+                        </div>
+                    }
+                </div>
+            </MudPaper>
+        </div>
+        <div class="col-lg-6 col-12 mb-4">
+            <MudPaper Class="p-3">
+                <Loading IsLoading="SystemLogLevelCountsLoading" />
+                <div class="row">
+                    <div class="col-12 d-flex align-items-center justify-content-between mb-4">
+                        <MudText>System Logs</MudText>
+                        <RefreshButton OnRefresh="OnSystemLogsRefreshHandler" />
+                    </div>
+                </div>
+                <SystemLogLevelCountsDonutChart SystemLogLevelCounts="SystemLogLevelCounts" Loading="SystemLogLevelCountsLoading" />
+            </MudPaper>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 mb-4">
+            <MudPaper Class="p-3">
+                <Loading IsLoading="TotalPaidExpensesMonthlyAmountsLoading" />
+                <TotalPaidExpensesMonthlyAmountsLineChart TotalPaidExpensesMonthlyAmounts="TotalPaidExpensesMonthlyAmounts" Loading="TotalPaidExpensesMonthlyAmountsLoading" />
+                <YearForm InitialYear="TotalPaidExpensesMonthlyAmountsReportYear" OnSubmit="OnTotalPaidExpensesMonthlyAmountsLineChartYearFormSubmitHandler" />
+            </MudPaper>
+        </div>
+        <div class="col-12 mb-4">
+            <MudPaper Class="p-3">
+                <Loading IsLoading="ExpenseStatusTypeMonthlyCountsLoading" />
+                <ExpenseStatusTypeMonthlyCountsBarChart ExpenseStatusTypeMonthlyCounts="ExpenseStatusTypeMonthlyCounts" Loading="ExpenseStatusTypeMonthlyCountsLoading" />
+                <YearForm InitialYear="ExpenseStatusTypeMonthlyCountsReportYear" OnSubmit="OnExpenseStatusTypeMonthlyCountsBarChartYearFormSubmitHandler" />
+            </MudPaper>
+        </div>
+        <div class="col-12 mb-4">
+            <MudPaper Class="p-3">
+                <ExpenseActionTypeMonthlyCountsHeatMapChart ExpenseActionTypeMonthlyCounts="ExpenseActionTypeMonthlyCounts" Loading="ExpenseActionTypeMonthlyCountsLoading" />
+                <YearForm InitialYear="ExpenseActionTypeMonthlyCountsReportYear" OnSubmit="OnExpenseActionTypeMonthlyCountsHeatMapChartYearFormSubmitHandler" />
+            </MudPaper>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool ExpenseStatusTypeCountsLoading => ReportsState.Value.ExpenseStatusTypeCountsLoading;
+    private bool ExpenseStatusTypeCountsInitialized => ReportsState.Value.ExpenseStatusTypeCountsInitialized;
+    private List<ExpenseStatusTypeCountDto> ExpenseStatusTypeCounts => ReportsState.Value.ExpenseStatusTypeCounts;
+
+    private bool SystemLogLevelCountsLoading => ReportsState.Value.SystemLogLevelCountsLoading;
+    private bool SystemLogLevelCountsInitialized => ReportsState.Value.SystemLogLevelCountsInitialized;
+    private List<SystemLogLevelCountDto> SystemLogLevelCounts => ReportsState.Value.SystemLogLevelCounts;
+
+    private bool TotalPaidExpensesMonthlyAmountsLoading => ReportsState.Value.TotalPaidExpensesMonthlyAmountsLoading;
+    private bool TotalPaidExpensesMonthlyAmountsInitialized => ReportsState.Value.TotalPaidExpensesMonthlyAmountsInitialized;
+    private List<TotalPaidExpensesMonthlyAmountDto> TotalPaidExpensesMonthlyAmounts => ReportsState.Value.TotalPaidExpensesMonthlyAmounts;
+    private int TotalPaidExpensesMonthlyAmountsReportYear => ReportsState.Value.TotalPaidExpensesMonthlyAmountsReportYear;
+
+    private bool ExpenseStatusTypeMonthlyCountsLoading => ReportsState.Value.ExpenseStatusTypeMonthlyCountsLoading;
+    private bool ExpenseStatusTypeMonthlyCountsInitialized => ReportsState.Value.TotalPaidExpensesMonthlyAmountsInitialized;
+    private List<ExpenseStatusTypeMonthlyCountDto> ExpenseStatusTypeMonthlyCounts => ReportsState.Value.ExpenseStatusTypeMonthlyCounts;
+    private int ExpenseStatusTypeMonthlyCountsReportYear => ReportsState.Value.ExpenseStatusTypeMonthlyCountsReportYear;
+
+    private bool ExpenseActionTypeMonthlyCountsLoading => ReportsState.Value.ExpenseActionTypeMonthlyCountsLoading;
+    private bool ExpenseActionTypeMonthlyCountsInitialized => ReportsState.Value.ExpenseActionTypeMonthlyCountsInitialized;
+    private List<ExpenseActionTypeMonthlyCountDto> ExpenseActionTypeMonthlyCounts => ReportsState.Value.ExpenseActionTypeMonthlyCounts;
+    private int ExpenseActionTypeMonthlyCountsReportYear => ReportsState.Value.ExpenseActionTypeMonthlyCountsReportYear;
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    protected override void OnInitialized()
+    {
+        if (!ExpenseStatusTypeCountsInitialized)
+        {
+            Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeCountsAction(cancellationTokenSource.Token));
+        }
+        if (!SystemLogLevelCountsInitialized)
+        {
+            Dispatcher.Dispatch(new ReportsActions.LoadSystemLogLevelCountsAction(cancellationTokenSource.Token));
+        }
+        if (!TotalPaidExpensesMonthlyAmountsInitialized)
+        {
+            Dispatcher.Dispatch(new ReportsActions.LoadTotalPaidExpensesMonthlyAmountsAction(TotalPaidExpensesMonthlyAmountsReportYear, cancellationTokenSource.Token));
+        }
+        if (!ExpenseStatusTypeMonthlyCountsInitialized)
+        {
+            Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeMonthlyCountsAction(ExpenseStatusTypeMonthlyCountsReportYear, cancellationTokenSource.Token));
+        }
+        if (!ExpenseActionTypeMonthlyCountsInitialized)
+        {
+            Dispatcher.Dispatch(new ReportsActions.LoadExpenseActionTypeMonthlyCountsAction(ExpenseActionTypeMonthlyCountsReportYear, cancellationTokenSource.Token));
+        }
+        base.OnInitialized();
+    }
+
+    private void OnExpenseRequestsRefreshHandler()
+    {
+        Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeCountsAction(cancellationTokenSource.Token));
+    }
+
+    private void OnSystemLogsRefreshHandler()
+    {
+        Dispatcher.Dispatch(new ReportsActions.LoadSystemLogLevelCountsAction(cancellationTokenSource.Token));
+    }
+
+    private void OnTotalPaidExpensesMonthlyAmountsLineChartYearFormSubmitHandler(int year)
+    {
+        Dispatcher.Dispatch(new ReportsActions.LoadTotalPaidExpensesMonthlyAmountsAction(year, cancellationTokenSource.Token));
+    }
+
+    private void OnExpenseStatusTypeMonthlyCountsBarChartYearFormSubmitHandler(int year)
+    {
+        Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeMonthlyCountsAction(year, cancellationTokenSource.Token));
+    }
+
+    private void OnExpenseActionTypeMonthlyCountsHeatMapChartYearFormSubmitHandler(int year)
+    {
+        Dispatcher.Dispatch(new ReportsActions.LoadExpenseActionTypeMonthlyCountsAction(year, cancellationTokenSource.Token));
+    }
+
+    private string getCardColorCalsses(ExpenseStatus expenseStatus)
+    {
+        return expenseStatus switch
+        {
+            ExpenseStatus.Pending => "gray shades-text text-white",
+            ExpenseStatus.Approved => "green shades-text text-white",
+            ExpenseStatus.Rejected => "red shades-text text-white",
+            ExpenseStatus.Paid => "blue shades-text text-white",
+            _ => string.Empty
+        };
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

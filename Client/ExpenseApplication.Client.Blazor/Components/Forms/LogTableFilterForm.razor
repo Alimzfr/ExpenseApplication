@@ -1,0 +1,61 @@
+﻿<EditForm Model="LogRequestFilter" OnValidSubmit="OnSubmitHandler">
+    <FluentValidationValidator />
+    <div class="container-fluid p-0">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudTextField T="string?"
+                              Label="Message"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Clearable="true"
+                              @bind-Value="LogRequestFilter.Message"
+                              For="@(() => LogRequestFilter.Message)" />
+            </div>
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudTextField T="string?"
+                              Label="Level"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Clearable="true"
+                              @bind-Value="LogRequestFilter.Level"
+                              For="@(() => LogRequestFilter.Level)" />
+            </div>
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudDatePicker Label="Start Date"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Clearable="true"
+                               @bind-Date="LogRequestFilter.StartTimeStamp"
+                               For="@(() => LogRequestFilter.StartTimeStamp)" />
+            </div>
+            <div class="col-lg-3 col-md-6 col-12 mb-4">
+                <MudDatePicker Label="End Date"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Clearable="true"
+                               @bind-Date="LogRequestFilter.EndTimeStamp"
+                               For="@(() => LogRequestFilter.EndTimeStamp)" />
+            </div>
+            <div class="col-12 text-end">
+                <MudButton Variant="Variant.Filled"
+                           ButtonType="ButtonType.Submit"
+                           Color="Color.Success">
+                    Search
+                </MudButton>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public LogRequestFilterDto LogRequestFilter { get; set; } = new();
+
+    [Parameter, EditorRequired]
+    public EventCallback<LogRequestFilterDto> OnSubmit { get; set; }
+
+    private async Task OnSubmitHandler()
+    {
+        await OnSubmit.InvokeAsync(LogRequestFilter);
+    }
+}

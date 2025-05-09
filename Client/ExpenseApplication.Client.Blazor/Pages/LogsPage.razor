@@ -1,0 +1,80 @@
+﻿@attribute [Route(PageAddressConstants.LogsPage)]
+@attribute [Authorize(Roles = CustomRoleConstants.Admin)]
+@layout MainLayout
+@inherits FluxorComponent
+@inject IState<LogsState> LogsState
+@inject IDispatcher Dispatcher
+@inject IDialogService DialogService
+<PageTitle>Logs</PageTitle>
+
+<PageHeader Title="Logs" Icon="@Icons.Material.Filled.List">
+    <MudButton Variant="Variant.Filled"
+               ButtonType="ButtonType.Button"
+               Color="Color.Error"
+               OnClick="ClearLogTableClickHandler">
+        Clear log table
+    </MudButton>
+</PageHeader>
+
+<MudExpansionPanels Class="mb-4">
+    <MudExpansionPanel Text="Filter">
+        <LogTableFilterForm LogRequestFilter="LogRequestFilter" OnSubmit="OnLogTableFilterFormHandler" />
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+<LogTable Title="System Logs"
+          Logs="Logs"
+          PagingInformation="PagingInformation"
+          IsRefreshButtonShow="false"
+          OnPageChanged="OnLogTablePageChangedHandler"
+          Loading="LogsLoading" />
+
+@code {
+    private bool LogsLoading => LogsState.Value.Loading;
+    private bool LogsInitialized => LogsState.Value.Initialized;
+    private List<LogDto> Logs => LogsState.Value.Logs;
+    private LogRequestFilterDto LogRequestFilter => LogsState.Value.LogRequestFilter;
+    private PagingInformationDto PagingInformation => LogsState.Value.PagingInformation;
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    protected override void OnInitialized()
+    {
+        if (!LogsInitialized)
+        {
+            Dispatcher.Dispatch(new LogsActions.LoadLogsAction(LogRequestFilter, new PagingRequestDto { PageSize = 10, PageNumber = 1 }, cancellationTokenSource.Token));
+        }
+
+        base.OnInitialized();
+    }
+
+    private void OnLogTableFilterFormHandler(LogRequestFilterDto logRequestFilter)
+    {
+        Dispatcher.Dispatch(new LogsActions.LoadLogsAction(logRequestFilter, new PagingRequestDto { PageSize = 10, PageNumber = 1 }, cancellationTokenSource.Token));
+    }
+
+    private async Task ClearLogTableClickHandler(MouseEventArgs obj)
+    {
+        var confirmationDialogParameters = new DialogParameters<ConfirmationDialog>
+        {
+            { x => x.Content, "Are you sure to clear all records of log table?" }
+        };
+        var confirmationDialogReference = await DialogService.ShowAsync<ConfirmationDialog>("Clear all logs", confirmationDialogParameters);
+        var confirmationDialogResult = await confirmationDialogReference.GetReturnValueAsync<bool?>();
+        if (confirmationDialogResult is true)
+        {
+            Dispatcher.Dispatch(new LogsActions.SubmitDeleteAllLogsAction(cancellationTokenSource.Token));
+        }
+    }
+
+    private void OnLogTablePageChangedHandler(int pageNumber)
+    {
+        Dispatcher.Dispatch(new LogsActions.LoadLogsAction(LogRequestFilter, new PagingRequestDto { PageSize = 10, PageNumber = pageNumber }, cancellationTokenSource.Token));
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

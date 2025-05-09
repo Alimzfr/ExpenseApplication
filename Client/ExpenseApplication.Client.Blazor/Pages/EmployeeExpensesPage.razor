@@ -1,0 +1,73 @@
+﻿@attribute [Route(PageAddressConstants.EmployeeExpensesPage)]
+@attribute [Authorize(Roles = CustomRoleConstants.Employee)]
+@layout MainLayout
+@inherits FluxorComponent
+@inject IState<EmployeeExpensesState> ExpenseState
+@inject IDispatcher Dispatcher
+@inject NavigationManager NavigationManager
+<PageTitle>Expense</PageTitle>
+
+<PageHeader Title="Expenses" Icon="@Icons.Material.Filled.CurrencyExchange">
+    <MudButton Variant="Variant.Filled"
+               ButtonType="ButtonType.Button"
+               Color="Color.Success"
+               Href="@PageAddressConstants.ExpenseRequestPage">
+        Create New Expense Request
+    </MudButton>
+</PageHeader>
+
+<MudExpansionPanels Class="mb-4">
+    <MudExpansionPanel Text="Filter">
+        <ExpenseTableFilterForm ExpenseRequestFilter="ExpenseRequestFilter" OnSubmit="OnExpenseTableFilterFormSubmitHandler" />
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+<ExpenseTable Title="Expense Forms"
+              Expenses="Expenses"
+              IsActionColumnShow="true"
+              Actions="new[] { ExpenseActionType.Submit, ExpenseActionType.Edit }"
+              OnEdit="OnEditClickHandler"
+              IsRefreshButtonShow="true"
+              OnRefresh="OnRefreshClickHandler"
+              Loading="ExpenseLoading" />
+
+@code {
+    private bool ExpenseLoading => ExpenseState.Value.Loading;
+    private bool ExpenseInitialized => ExpenseState.Value.Initialized;
+    private List<ExpenseDto> Expenses => ExpenseState.Value.EmployeeExpenses;
+    private ExpenseRequestFilterDto ExpenseRequestFilter => ExpenseState.Value.ExpenseRequestFilter;
+
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+
+    protected override void OnInitialized()
+    {
+        if (!ExpenseInitialized)
+        {
+            Dispatcher.Dispatch(new EmployeeExpensesActions.LoadEmployeeExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+        }
+
+        base.OnInitialized();
+    }
+
+    private async Task OnEditClickHandler(ExpenseDto expense)
+    {
+        var enrichedUrl = QueryStringHelper.AppendQueryStringToUrl(PageAddressConstants.ExpenseRequestPage, new Dictionary<string, string?> { { "ExpenseId", expense.Id.ToString() } });
+        NavigationManager.NavigateTo(enrichedUrl);
+    }
+
+    private void OnExpenseTableFilterFormSubmitHandler(ExpenseRequestFilterDto expenseRequestFilter)
+    {
+        Dispatcher.Dispatch(new EmployeeExpensesActions.LoadEmployeeExpensesAction(expenseRequestFilter, cancellationTokenSource.Token));
+    }
+
+    private void OnRefreshClickHandler()
+    {
+        Dispatcher.Dispatch(new EmployeeExpensesActions.LoadEmployeeExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+    }
+
+    protected override ValueTask DisposeAsyncCore(bool disposing)
+    {
+        cancellationTokenSource.Cancel();
+        return base.DisposeAsyncCore(disposing);
+    }
+}

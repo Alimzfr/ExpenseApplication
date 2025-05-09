@@ -1,0 +1,14 @@
+global using System.Net;
+global using Blazored.LocalStorage;
+global using ExpenseApplication.Client.Helper;
+global using ExpenseApplication.Client.Services.Services;
+global using ExpenseApplication.Common.DataTransferObjects;
+global using Microsoft.AspNetCore.Components.Authorization;
+global using Microsoft.Extensions.DependencyInjection;
+global using MudBlazor.Services;
+global using System.Net.Http.Headers;
+global using System.Net.Http.Json;
+global using System.Security.Claims;
+global using System.Text.Json;
+global using ExpenseApplication.Common.Enums;
+global using MudBlazor;

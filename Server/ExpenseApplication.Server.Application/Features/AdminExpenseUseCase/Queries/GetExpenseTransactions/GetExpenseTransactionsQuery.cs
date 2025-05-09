@@ -1,0 +1,5 @@
+﻿namespace ExpenseApplication.Server.Application.Features.AdminExpenseUseCase.Queries.GetExpenseTransactions;
+
+public record GetExpenseTransactionsQuery(ExpenseTransactionRequestFilterDto ExpenseTransactionRequestFilter) : IQuery<GetExpenseTransactionsQueryResult>;
+
+public record GetExpenseTransactionsQueryResult(List<ExpenseTransactionDto> ExpenseTransactions);
