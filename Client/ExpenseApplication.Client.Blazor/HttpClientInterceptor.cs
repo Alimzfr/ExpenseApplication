@@ -11,23 +11,23 @@ namespace ExpenseApplication.Client.Blazor;
 
 public class HttpClientInterceptor : IDisposable
 {
-    private readonly IHttpClientInterceptor httpClientInterceptor;
-    private readonly ICustomLocalStorageService customLocalStorageService;
-    private readonly IDispatcher dispatcher;
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private readonly IHttpClientInterceptor _httpClientInterceptor;
+    private readonly ICustomLocalStorageService _customLocalStorageService;
+    private readonly IDispatcher _dispatcher;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     public HttpClientInterceptor(IHttpClientInterceptor httpClientInterceptor, ICustomLocalStorageService customLocalStorageService, IDispatcher dispatcher)
     {
-        this.httpClientInterceptor = httpClientInterceptor;
-        this.customLocalStorageService = customLocalStorageService;
-        this.dispatcher = dispatcher;
-        this.httpClientInterceptor.BeforeSendAsync += BeforeSendHandler;
-        this.httpClientInterceptor.AfterSendAsync += AfterSendHandler;
+        _httpClientInterceptor = httpClientInterceptor;
+        _customLocalStorageService = customLocalStorageService;
+        _dispatcher = dispatcher;
+        _httpClientInterceptor.BeforeSendAsync += BeforeSendHandler;
+        _httpClientInterceptor.AfterSendAsync += AfterSendHandler;
     }
 
     private async Task BeforeSendHandler(object sender, HttpClientInterceptorEventArgs httpClientInterceptorEventArgs)
     {
-        var accessToken = await customLocalStorageService.GetItemAsync<string?>(LocalStorageConstants.AccessToken, cancellationTokenSource.Token);
+        var accessToken = await _customLocalStorageService.GetItemAsync<string?>(LocalStorageConstants.AccessToken, _cancellationTokenSource.Token);
         httpClientInterceptorEventArgs.Request.Headers.Authorization = string.IsNullOrEmpty(accessToken) ? null : new AuthenticationHeaderValue("bearer", accessToken);
     }
 
@@ -36,15 +36,15 @@ public class HttpClientInterceptor : IDisposable
         if (httpClientInterceptorEventArgs?.Response?.IsSuccessStatusCode is true) return;
         if (httpClientInterceptorEventArgs?.Response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden })
         {
-            dispatcher.Dispatch(new LoginActions.SubmitRefreshLoginAction(cancellationTokenSource.Token));
+            _dispatcher.Dispatch(new LoginActions.SubmitRefreshLoginAction(_cancellationTokenSource.Token));
         }
     }
 
     public void Dispose()
     {
-        httpClientInterceptor.BeforeSendAsync -= BeforeSendHandler;
-        httpClientInterceptor.AfterSendAsync -= AfterSendHandler;
-        cancellationTokenSource.Dispose();
+        _httpClientInterceptor.BeforeSendAsync -= BeforeSendHandler;
+        _httpClientInterceptor.AfterSendAsync -= AfterSendHandler;
+        _cancellationTokenSource.Dispose();
     }
 }
 

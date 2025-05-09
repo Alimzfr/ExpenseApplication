@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ExpenseApplication.Server.Application.Account.Services;

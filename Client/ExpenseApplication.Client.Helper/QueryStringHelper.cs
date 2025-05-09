@@ -8,7 +8,7 @@ public static class QueryStringHelper
     {
         if (queryParams?.Any() is true)
         {
-            return queryParams?.Aggregate(url, (current, keyValuePair) => current.AppendQueryParam(keyValuePair.Key, keyValuePair.Value)) ?? string.Empty;
+            return queryParams.Aggregate(url, (current, keyValuePair) => current.AppendQueryParam(keyValuePair.Key, keyValuePair.Value)) ?? string.Empty;
         }
 
         return url;

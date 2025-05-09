@@ -1,4 +1,4 @@
-﻿<EditForm Model="expenseItem" OnValidSubmit="OnSubmitHandler">
+﻿<EditForm Model="_expenseItem" OnValidSubmit="OnSubmitHandler">
     <FluentValidationValidator />
     <div class="container-fluid p-0">
         <div class="row">
@@ -7,8 +7,8 @@
                               Label="Purpose"
                               Variant="Variant.Outlined"
                               Margin="Margin.Dense"
-                              @bind-Value="expenseItem.Purpose"
-                              For="@(() => expenseItem.Purpose)" />
+                              @bind-Value="_expenseItem.Purpose"
+                              For="@(() => _expenseItem.Purpose)" />
             </div>
             <div class="col-lg-4 col-12 mb-4">
                 <MudNumericField T="decimal"
@@ -17,8 +17,8 @@
                                  Margin="Margin.Dense"
                                  Adornment="Adornment.End"
                                  AdornmentText="@(new CultureInfo(CurrencyType.GetEnumDescription()).NumberFormat.CurrencySymbol)"
-                                 @bind-Value="expenseItem.Amount"
-                                 For="@(() => expenseItem.Amount)" />
+                                 @bind-Value="_expenseItem.Amount"
+                                 For="@(() => _expenseItem.Amount)" />
             </div>
             <div class="col-12 text-end">
                 <MudButton Variant="Variant.Filled"
@@ -38,11 +38,11 @@
     [Parameter, EditorRequired]
     public CurrencyType CurrencyType { get; set; }
 
-    private ExpenseItemDto expenseItem = new();
+    private ExpenseItemDto _expenseItem = new();
 
     private async Task OnSubmitHandler(EditContext editContext)
     {
-        await OnAdd.InvokeAsync(expenseItem);
-        expenseItem = new();
+        await OnAdd.InvokeAsync(_expenseItem);
+        _expenseItem = new ExpenseItemDto();
     }
 }

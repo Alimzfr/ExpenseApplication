@@ -2,7 +2,7 @@
     <DialogContent>
         <MudText>@Content</MudText>
         <MudTextField T="string?"
-                      @bind-Value="comments"
+                      @bind-Value="_comments"
                       Label="Comments"
                       Variant="Variant.Outlined"
                       Margin="Margin.Dense"
@@ -23,7 +23,7 @@
                        ButtonType="ButtonType.Submit"
                        Color="Color.Success"
                        Class="flex-1"
-                       Disabled="(IsRequired && string.IsNullOrEmpty(comments))"
+                       Disabled="(IsRequired && string.IsNullOrEmpty(_comments))"
                        OnClick="OnOkClickHandler">
                 Submit
             </MudButton>
@@ -44,7 +44,7 @@
     [Parameter]
     public string RequiredError { get; set; } = "Comments is required!";
 
-    private string? comments;
+    private string? _comments;
 
     private void OnCancelClickHandler()
     {
@@ -53,6 +53,6 @@
 
     private void OnOkClickHandler()
     {
-        MudDialogInstance?.Close(DialogResult.Ok((true, comments)));
+        MudDialogInstance?.Close(DialogResult.Ok((true, comments: _comments)));
     }
 }

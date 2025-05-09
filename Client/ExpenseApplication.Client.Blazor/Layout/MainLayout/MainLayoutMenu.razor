@@ -13,11 +13,11 @@
         <LogoutButton OnLogout="OnLogoutHandler" />
     </MudPaper>
 </MudAppBar>
-<MudDrawer @bind-Open="DrawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+<MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
     <MudCard Outlined="false" Square="false" Elevation="0" Class="d-flex align-items-center justify-content-center">
         <UserIcon Width="150" Height="150" />
         <MudCardContent Class="text-center mt-n9">
-            <MudText Typo="Typo.caption">@($"{UserDisplayName} ({UserRole})")</MudText>
+            <MudText Typo="Typo.caption">@($"{_userDisplayName} ({_userRole})")</MudText>
         </MudCardContent>
     </MudCard>
     <MudNavMenu>
@@ -44,10 +44,10 @@
 @code
 {
     private bool IsDarkModeEnable => ApplicationSettingState.Value.IsDarkModeEnable;
-    private bool DrawerOpen = true;
-    private readonly CancellationTokenSource cancellationTokenSource = new();
-    private string? UserDisplayName = null;
-    private string? UserRole = null;
+    private bool _drawerOpen = true;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private string? _userDisplayName = null;
+    private string? _userRole = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -57,31 +57,31 @@
 
     private void OnSwitchDarkModeHandler(bool isDarkModeEnable)
     {
-        Dispatcher.Dispatch(new DarkModeActions.SwitchIsDarkModeEnableAction(isDarkModeEnable, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new DarkModeActions.SwitchIsDarkModeEnableAction(isDarkModeEnable, _cancellationTokenSource.Token));
     }
 
     private void DrawerToggleHandler()
     {
-        DrawerOpen = !DrawerOpen;
+        _drawerOpen = !_drawerOpen;
     }
 
     private void OnLogoutHandler()
     {
-        Dispatcher.Dispatch(new LogoutActions.SubmitLogoutAction(cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new LogoutActions.SubmitLogoutAction(_cancellationTokenSource.Token));
     }
 
     private async Task UserInformationConfigure()
     {
         var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var displayName = authenticationState?.User?.Claims?.FirstOrDefault(x => x.Type == "DisplayName")?.Value;
-        UserDisplayName = displayName;
+        _userDisplayName = displayName;
         var role = authenticationState?.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
-        UserRole = role;
+        _userRole = role;
     }
 
     protected override ValueTask DisposeAsyncCore(bool disposing)
     {
-        cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
         return base.DisposeAsyncCore(disposing);
     }
 }

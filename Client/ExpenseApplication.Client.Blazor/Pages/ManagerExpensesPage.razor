@@ -31,13 +31,13 @@
     private List<ExpenseDto> ManagerExpenses => ManagerExpensesState.Value.ManagerExpenses;
     private ExpenseRequestFilterDto ExpenseRequestFilter => ManagerExpensesState.Value.ExpenseRequestFilter;
 
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     protected override void OnInitialized()
     {
         if (!ManagerExpensesInitialized)
         {
-            Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(ExpenseRequestFilter, _cancellationTokenSource.Token));
         }
 
         base.OnInitialized();
@@ -59,7 +59,7 @@
                         ExpenseId = expense.Id,
                         Comments = addCommentsDialogResult.Value.Item2
                     },
-                cancellationTokenSource.Token));
+                _cancellationTokenSource.Token));
         }
     }
 
@@ -81,23 +81,24 @@
                         ExpenseId = expense.Id,
                         Comments = addCommentsDialogResult.Value.Item2
                     },
-                cancellationTokenSource.Token));
+                _cancellationTokenSource.Token));
         }
     }
 
     private void OnExpenseTableFilterFormSubmitHandler(ExpenseRequestFilterDto expenseRequestFilter)
     {
-        Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(expenseRequestFilter, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(expenseRequestFilter, _cancellationTokenSource.Token));
     }
 
     private void OnRefreshClickHandler()
     {
-        Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(ExpenseRequestFilter, _cancellationTokenSource.Token));
     }
 
     protected override ValueTask DisposeAsyncCore(bool disposing)
     {
-        cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
         return base.DisposeAsyncCore(disposing);
     }
 }

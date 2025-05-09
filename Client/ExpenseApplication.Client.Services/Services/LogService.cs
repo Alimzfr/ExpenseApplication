@@ -4,18 +4,16 @@ public class LogService(IApiService apiService) : ILogService
 {
     public async Task<BaseResponsePagingDto<List<LogDto>>> GetLogsAsync(LogRequestFilterDto logRequestFilter, PagingRequestDto pagingRequest, CancellationToken cancellationToken = default(CancellationToken))
     {
-        var url = "api/Admin/GetLogs";
+        const string url = "api/Admin/GetLogs";
         var queryParams = new Dictionary<string, string?>
         {
             { nameof(logRequestFilter.Level), logRequestFilter.Level },
             { nameof(logRequestFilter.Message), logRequestFilter.Message },
             { nameof(logRequestFilter.StartTimeStamp), logRequestFilter.StartTimeStamp?.ToString() },
             { nameof(logRequestFilter.EndTimeStamp), logRequestFilter.EndTimeStamp?.ToString() },
-
             { nameof(pagingRequest.PageSize), pagingRequest.PageSize.ToString() },
             { nameof(pagingRequest.PageNumber), pagingRequest.PageNumber.ToString() }
         };
-        //var response = await apiService.Get<BaseResponsePagingDto<List<LogDto>>>(url, queryParams, cancellationToken);
         var response = await apiService.Get<BaseResponsePagingDto<List<LogDto>>>(url, queryParams, cancellationToken);
         return response;
     }

@@ -36,13 +36,13 @@
     private LogRequestFilterDto LogRequestFilter => LogsState.Value.LogRequestFilter;
     private PagingInformationDto PagingInformation => LogsState.Value.PagingInformation;
 
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     protected override void OnInitialized()
     {
         if (!LogsInitialized)
         {
-            Dispatcher.Dispatch(new LogsActions.LoadLogsAction(LogRequestFilter, new PagingRequestDto { PageSize = 10, PageNumber = 1 }, cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new LogsActions.LoadLogsAction(LogRequestFilter, new PagingRequestDto { PageSize = 10, PageNumber = 1 }, _cancellationTokenSource.Token));
         }
 
         base.OnInitialized();
@@ -50,7 +50,7 @@
 
     private void OnLogTableFilterFormHandler(LogRequestFilterDto logRequestFilter)
     {
-        Dispatcher.Dispatch(new LogsActions.LoadLogsAction(logRequestFilter, new PagingRequestDto { PageSize = 10, PageNumber = 1 }, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new LogsActions.LoadLogsAction(logRequestFilter, new PagingRequestDto { PageSize = 10, PageNumber = 1 }, _cancellationTokenSource.Token));
     }
 
     private async Task ClearLogTableClickHandler(MouseEventArgs obj)
@@ -63,18 +63,19 @@
         var confirmationDialogResult = await confirmationDialogReference.GetReturnValueAsync<bool?>();
         if (confirmationDialogResult is true)
         {
-            Dispatcher.Dispatch(new LogsActions.SubmitDeleteAllLogsAction(cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new LogsActions.SubmitDeleteAllLogsAction(_cancellationTokenSource.Token));
         }
     }
 
     private void OnLogTablePageChangedHandler(int pageNumber)
     {
-        Dispatcher.Dispatch(new LogsActions.LoadLogsAction(LogRequestFilter, new PagingRequestDto { PageSize = 10, PageNumber = pageNumber }, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new LogsActions.LoadLogsAction(LogRequestFilter, new PagingRequestDto { PageSize = 10, PageNumber = pageNumber }, _cancellationTokenSource.Token));
     }
 
     protected override ValueTask DisposeAsyncCore(bool disposing)
     {
-        cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
         return base.DisposeAsyncCore(disposing);
     }
 }

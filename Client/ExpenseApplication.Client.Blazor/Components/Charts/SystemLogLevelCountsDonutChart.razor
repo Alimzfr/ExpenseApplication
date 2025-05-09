@@ -1,13 +1,13 @@
 ﻿@using ApexCharts
 
-<div style=@($"min-width: {width}; min-height: {height};")>
+<div style=@($"min-width: {_width}; min-height: {_height};")>
     @if (!Loading)
     {
         @if (SystemLogLevelCounts.Any())
         {
             <ApexChart TItem="SystemLogLevelCountDto"
-                       Height="height"
-                       Options="apexChartOptions">
+                       Height="_height"
+                       Options="_apexChartOptions">
 
                 <ApexPointSeries TItem="SystemLogLevelCountDto"
                                  Items="SystemLogLevelCounts"
@@ -33,13 +33,13 @@
     [Parameter]
     public bool Loading { get; set; } = false;
 
-    private ApexChartOptions<SystemLogLevelCountDto> apexChartOptions = new();
-    private string width = "100%";
-    private string height = "368px";
+    private ApexChartOptions<SystemLogLevelCountDto> _apexChartOptions = new();
+    private string _width = "100%";
+    private string _height = "368px";
 
     protected override void OnInitialized()
     {
-        apexChartOptions.Legend = new Legend { Position = LegendPosition.Bottom };
+        _apexChartOptions.Legend = new Legend { Position = LegendPosition.Bottom };
         base.OnInitialized();
     }
 

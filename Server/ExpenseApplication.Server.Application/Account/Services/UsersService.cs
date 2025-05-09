@@ -2,18 +2,18 @@
 
 public class UsersService(IUnitOfWork unitOfWork, ISecurityService securityService, IHttpContextAccessor contextAccessor) : IUsersService
 {
-    private readonly DbSet<User> userDbSet = unitOfWork.Set<User>();
+    private readonly DbSet<User> _userDbSet = unitOfWork.Set<User>();
 
     public async Task<User?> FindUserAsync(int userId)
     {
-        var user = await userDbSet.FindAsync(userId);
+        var user = await _userDbSet.FindAsync(userId);
         return user;
     }
 
     public async Task<User?> FindUserAsync(string username, string password)
     {
         var passwordHash = securityService.GetSha256Hash(password);
-        return await userDbSet.FirstOrDefaultAsync(x => x.Username == username && x.Password == passwordHash);
+        return await _userDbSet.FirstOrDefaultAsync(x => x.Username == username && x.Password == passwordHash);
     }
 
     public async Task<string?> GetSerialNumberAsync(int userId)

@@ -6,7 +6,7 @@ public class TokenStoreService(
     IOptionsSnapshot<BearerTokensOptions> configuration,
     ITokenFactoryService tokenFactoryService) : ITokenStoreService
 {
-    private readonly DbSet<UserToken> userTokenDbSet = unitOfWork.Set<UserToken>();
+    private readonly DbSet<UserToken> _userTokenDbSet = unitOfWork.Set<UserToken>();
 
     public async Task AddUserTokenAsync(UserToken userToken)
     {
@@ -16,7 +16,7 @@ public class TokenStoreService(
         }
 
         await DeleteTokensWithSameRefreshTokenSourceAsync(userToken.RefreshTokenIdHashSource);
-        userTokenDbSet.Add(userToken);
+        _userTokenDbSet.Add(userToken);
     }
 
     public async Task AddUserTokenAsync(User user, string refreshTokenSerial, string accessToken,
@@ -43,8 +43,8 @@ public class TokenStoreService(
     public async Task DeleteExpiredTokensAsync()
     {
         var currentDateTime = DateTime.UtcNow;
-        await userTokenDbSet.Where(x => x.RefreshTokenExpiresDateTime < currentDateTime)
-            .ForEachAsync(userToken => userTokenDbSet.Remove(userToken));
+        await _userTokenDbSet.Where(x => x.RefreshTokenExpiresDateTime < currentDateTime)
+            .ForEachAsync(userToken => _userTokenDbSet.Remove(userToken));
     }
 
     public async Task DeleteTokenAsync(string refreshTokenValue)
@@ -53,7 +53,7 @@ public class TokenStoreService(
 
         if (userToken is not null)
         {
-            userTokenDbSet.Remove(userToken);
+            _userTokenDbSet.Remove(userToken);
         }
     }
 
@@ -64,11 +64,11 @@ public class TokenStoreService(
             return;
         }
 
-        await userTokenDbSet
+        await _userTokenDbSet
             .Where(userToken => userToken.RefreshTokenIdHashSource == refreshTokenIdHashSource ||
                                 (userToken.RefreshTokenIdHash == refreshTokenIdHashSource &&
                                  userToken.RefreshTokenIdHashSource == null))
-            .ForEachAsync(userToken => userTokenDbSet.Remove(userToken));
+            .ForEachAsync(userToken => _userTokenDbSet.Remove(userToken));
     }
 
     public async Task RevokeUserBearerTokensAsync(int? userId, string refreshToken)
@@ -109,18 +109,18 @@ public class TokenStoreService(
         }
 
         var refreshTokenIdHash = securityService.GetSha256Hash(refreshTokenSerial);
-        return userTokenDbSet.Include(x => x.User).FirstOrDefaultAsync(x => x.RefreshTokenIdHash == refreshTokenIdHash);
+        return _userTokenDbSet.Include(x => x.User).FirstOrDefaultAsync(x => x.RefreshTokenIdHash == refreshTokenIdHash);
     }
 
     public async Task InvalidateUserTokensAsync(int userId)
     {
-        await userTokenDbSet.Where(x => x.UserId == userId).ForEachAsync(userToken => userTokenDbSet.Remove(userToken));
+        await _userTokenDbSet.Where(x => x.UserId == userId).ForEachAsync(userToken => _userTokenDbSet.Remove(userToken));
     }
 
     public async Task<bool> IsValidTokenAsync(string accessToken, int userId)
     {
         var accessTokenHash = securityService.GetSha256Hash(accessToken);
-        var userToken = await userTokenDbSet.FirstOrDefaultAsync(x => x.AccessTokenHash == accessTokenHash && x.UserId == userId);
+        var userToken = await _userTokenDbSet.FirstOrDefaultAsync(x => x.AccessTokenHash == accessTokenHash && x.UserId == userId);
         return userToken?.AccessTokenExpiresDateTime >= DateTime.UtcNow;
     }
 }

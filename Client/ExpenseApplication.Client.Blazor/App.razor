@@ -37,20 +37,20 @@
     private bool IsDarkModeEnable => ApplicationSettingState.Value.IsDarkModeEnable;
     private bool IsApplicationSettingStateInitialized => ApplicationSettingState.Value.Initialized;
 
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     protected override void OnInitialized()
     {
         if (!IsApplicationSettingStateInitialized)
         {
-            Dispatcher.Dispatch(new DarkModeActions.LoadIsDarkModeEnableAction(cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new DarkModeActions.LoadIsDarkModeEnableAction(_cancellationTokenSource.Token));
         }
         base.OnInitialized();
     }
 
     protected override ValueTask DisposeAsyncCore(bool disposing)
     {
-        cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
         return base.DisposeAsyncCore(disposing);
     }
 }

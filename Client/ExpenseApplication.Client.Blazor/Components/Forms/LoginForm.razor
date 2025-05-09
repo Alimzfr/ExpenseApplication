@@ -1,4 +1,4 @@
-﻿<EditForm Model="loginForm" OnValidSubmit="OnSubmitHandler">
+﻿<EditForm Model="_loginForm" OnValidSubmit="OnSubmitHandler">
     <FluentValidationValidator />
 
     <MudTextField Label="Username"
@@ -6,20 +6,20 @@
                   Margin="Margin.Dense"
                   AutoFocus="true"
                   Class="mb-4"
-                  @bind-Value="loginForm.Username"
-                  For="@(() => loginForm.Username)" />
+                  @bind-Value="_loginForm.Username"
+                  For="@(() => _loginForm.Username)" />
 
     <MudTextField Label="Password"
-                  InputType="passwordInputType"
+                  InputType="_passwordInputType"
                   Variant="Variant.Outlined"
                   Margin="Margin.Dense"
                   Adornment="Adornment.End"
-                  AdornmentIcon="@passwordInputIcon"
+                  AdornmentIcon="@_passwordInputIcon"
                   OnAdornmentClick="ShowPasswordToggleHandler"
                   AdornmentAriaLabel="Show Password"
                   Class="mb-4"
-                  @bind-Value="loginForm.Password"
-                  For="@(() => loginForm.Password)" />
+                  @bind-Value="_loginForm.Password"
+                  For="@(() => _loginForm.Password)" />
 
     <MudButton Variant="Variant.Filled"
                ButtonType="ButtonType.Submit"
@@ -33,26 +33,26 @@
     [Parameter]
     public EventCallback<LoginFormDto> OnSubmit { get; set; }
 
-    private LoginFormDto loginForm = new();
-    private InputType passwordInputType = InputType.Password;
-    private string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+    private LoginFormDto _loginForm = new();
+    private InputType _passwordInputType = InputType.Password;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     private async Task OnSubmitHandler()
     {
-        await OnSubmit.InvokeAsync(loginForm);
+        await OnSubmit.InvokeAsync(_loginForm);
     }
 
     private void ShowPasswordToggleHandler()
     {
-        switch (passwordInputType)
+        switch (_passwordInputType)
         {
             case InputType.Password:
-                passwordInputIcon = Icons.Material.Filled.Visibility;
-                passwordInputType = InputType.Text;
+                _passwordInputIcon = Icons.Material.Filled.Visibility;
+                _passwordInputType = InputType.Text;
                 break;
             case InputType.Text:
-                passwordInputIcon = Icons.Material.Filled.VisibilityOff;
-                passwordInputType = InputType.Password;
+                _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+                _passwordInputType = InputType.Password;
                 break;
         }
     }

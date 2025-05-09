@@ -12,7 +12,7 @@ public class CustomAuthStateProvider(ICustomLocalStorageService localStorageServ
         }
 
         http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Replace("\"", ""));
-        var identity = new ClaimsIdentity(parseClaimsFromJwt(accessToken), "jwt");
+        var identity = new ClaimsIdentity(ParseClaimsFromJwt(accessToken), "jwt");
         var claimsPrincipal = new ClaimsPrincipal(identity);
         var authenticationState = new AuthenticationState(claimsPrincipal);
 
@@ -21,15 +21,15 @@ public class CustomAuthStateProvider(ICustomLocalStorageService localStorageServ
 
     public async Task NotifyAuthenticationStateChanged() => NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
 
-    private static IEnumerable<Claim> parseClaimsFromJwt(string jwt)
+    private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
     {
         var payload = jwt.Split('.')[1];
-        var jsonBytes = parseBase64WithoutPadding(payload);
+        var jsonBytes = ParseBase64WithoutPadding(payload);
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
         return keyValuePairs?.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()));
     }
 
-    private static byte[] parseBase64WithoutPadding(string base64)
+    private static byte[] ParseBase64WithoutPadding(string base64)
     {
         switch (base64.Length % 4)
         {

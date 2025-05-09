@@ -30,13 +30,13 @@
     private List<ExpenseDto> AccountantExpenses => AccountantExpensesState.Value.AccountantExpenses;
     private ExpenseRequestFilterDto ExpenseRequestFilter => AccountantExpensesState.Value.ExpenseRequestFilter;
 
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     protected override void OnInitialized()
     {
         if (!AccountantExpensesInitialized)
         {
-            Dispatcher.Dispatch(new AccountantExpensesActions.LoadAccountantExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new AccountantExpensesActions.LoadAccountantExpensesAction(ExpenseRequestFilter, _cancellationTokenSource.Token));
         }
 
         base.OnInitialized();
@@ -58,23 +58,24 @@
                         ExpenseId = expense.Id,
                         Comments = addCommentsDialogResult.Value.Item2
                     },
-                cancellationTokenSource.Token));
+                _cancellationTokenSource.Token));
         }
     }
 
     private void OnExpenseTableFilterFormSubmitHandler(ExpenseRequestFilterDto expenseRequestFilter)
     {
-        Dispatcher.Dispatch(new AccountantExpensesActions.LoadAccountantExpensesAction(expenseRequestFilter, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new AccountantExpensesActions.LoadAccountantExpensesAction(expenseRequestFilter, _cancellationTokenSource.Token));
     }
 
     private void OnRefreshClickHandler()
     {
-        Dispatcher.Dispatch(new AccountantExpensesActions.LoadAccountantExpensesAction(ExpenseRequestFilter, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new AccountantExpensesActions.LoadAccountantExpensesAction(ExpenseRequestFilter, _cancellationTokenSource.Token));
     }
 
     protected override ValueTask DisposeAsyncCore(bool disposing)
     {
-        cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
         return base.DisposeAsyncCore(disposing);
     }
 }

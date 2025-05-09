@@ -23,7 +23,7 @@
                     @foreach (var expenseStatusTypeCount in ExpenseStatusTypeCounts)
                     {
                         <div class="col-12">
-                            <MudCard Class="@getCardColorCalsses(expenseStatusTypeCount.ExpenseStatus)">
+                            <MudCard Class="@GetCardColorClasses(expenseStatusTypeCount.ExpenseStatus)">
                                 <MudCardContent Class="d-flex flex-column">
                                     <MudTooltip Text="Expense Status" Placement="Placement.Right">
                                         <MudText>@expenseStatusTypeCount.ExpenseStatus</MudText>
@@ -99,59 +99,59 @@
     private List<ExpenseActionTypeMonthlyCountDto> ExpenseActionTypeMonthlyCounts => ReportsState.Value.ExpenseActionTypeMonthlyCounts;
     private int ExpenseActionTypeMonthlyCountsReportYear => ReportsState.Value.ExpenseActionTypeMonthlyCountsReportYear;
 
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     protected override void OnInitialized()
     {
         if (!ExpenseStatusTypeCountsInitialized)
         {
-            Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeCountsAction(cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeCountsAction(_cancellationTokenSource.Token));
         }
         if (!SystemLogLevelCountsInitialized)
         {
-            Dispatcher.Dispatch(new ReportsActions.LoadSystemLogLevelCountsAction(cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new ReportsActions.LoadSystemLogLevelCountsAction(_cancellationTokenSource.Token));
         }
         if (!TotalPaidExpensesMonthlyAmountsInitialized)
         {
-            Dispatcher.Dispatch(new ReportsActions.LoadTotalPaidExpensesMonthlyAmountsAction(TotalPaidExpensesMonthlyAmountsReportYear, cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new ReportsActions.LoadTotalPaidExpensesMonthlyAmountsAction(TotalPaidExpensesMonthlyAmountsReportYear, _cancellationTokenSource.Token));
         }
         if (!ExpenseStatusTypeMonthlyCountsInitialized)
         {
-            Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeMonthlyCountsAction(ExpenseStatusTypeMonthlyCountsReportYear, cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeMonthlyCountsAction(ExpenseStatusTypeMonthlyCountsReportYear, _cancellationTokenSource.Token));
         }
         if (!ExpenseActionTypeMonthlyCountsInitialized)
         {
-            Dispatcher.Dispatch(new ReportsActions.LoadExpenseActionTypeMonthlyCountsAction(ExpenseActionTypeMonthlyCountsReportYear, cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new ReportsActions.LoadExpenseActionTypeMonthlyCountsAction(ExpenseActionTypeMonthlyCountsReportYear, _cancellationTokenSource.Token));
         }
         base.OnInitialized();
     }
 
     private void OnExpenseRequestsRefreshHandler()
     {
-        Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeCountsAction(cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeCountsAction(_cancellationTokenSource.Token));
     }
 
     private void OnSystemLogsRefreshHandler()
     {
-        Dispatcher.Dispatch(new ReportsActions.LoadSystemLogLevelCountsAction(cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new ReportsActions.LoadSystemLogLevelCountsAction(_cancellationTokenSource.Token));
     }
 
     private void OnTotalPaidExpensesMonthlyAmountsLineChartYearFormSubmitHandler(int year)
     {
-        Dispatcher.Dispatch(new ReportsActions.LoadTotalPaidExpensesMonthlyAmountsAction(year, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new ReportsActions.LoadTotalPaidExpensesMonthlyAmountsAction(year, _cancellationTokenSource.Token));
     }
 
     private void OnExpenseStatusTypeMonthlyCountsBarChartYearFormSubmitHandler(int year)
     {
-        Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeMonthlyCountsAction(year, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new ReportsActions.LoadExpenseStatusTypeMonthlyCountsAction(year, _cancellationTokenSource.Token));
     }
 
     private void OnExpenseActionTypeMonthlyCountsHeatMapChartYearFormSubmitHandler(int year)
     {
-        Dispatcher.Dispatch(new ReportsActions.LoadExpenseActionTypeMonthlyCountsAction(year, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new ReportsActions.LoadExpenseActionTypeMonthlyCountsAction(year, _cancellationTokenSource.Token));
     }
 
-    private string getCardColorCalsses(ExpenseStatus expenseStatus)
+    private static string GetCardColorClasses(ExpenseStatus expenseStatus)
     {
         return expenseStatus switch
         {
@@ -165,7 +165,8 @@
 
     protected override ValueTask DisposeAsyncCore(bool disposing)
     {
-        cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
         return base.DisposeAsyncCore(disposing);
     }
 }

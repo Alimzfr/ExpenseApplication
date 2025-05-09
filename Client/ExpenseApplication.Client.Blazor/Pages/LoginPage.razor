@@ -23,16 +23,17 @@
 
     private bool LoginLoading => LoginState.Value.Loading;
 
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     private void OnSubmitLoginFormHandler(LoginFormDto loginForm)
     {
-        Dispatcher.Dispatch(new LoginActions.SubmitLoginUsernamePasswordFormAction(loginForm, ReturnUrl, cancellationTokenSource.Token));
+        Dispatcher.Dispatch(new LoginActions.SubmitLoginUsernamePasswordFormAction(loginForm, ReturnUrl, _cancellationTokenSource.Token));
     }
 
     protected override ValueTask DisposeAsyncCore(bool disposing)
     {
-        cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
         return base.DisposeAsyncCore(disposing);
     }
 }

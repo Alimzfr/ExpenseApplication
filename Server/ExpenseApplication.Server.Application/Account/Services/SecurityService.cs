@@ -4,7 +4,7 @@ namespace ExpenseApplication.Server.Application.Account.Services;
 
 public class SecurityService : ISecurityService
 {
-    private readonly RandomNumberGenerator randomNumberGenerator = RandomNumberGenerator.Create();
+    private readonly RandomNumberGenerator _randomNumberGenerator = RandomNumberGenerator.Create();
 
     public string GetSha256Hash(string input)
     {
@@ -16,7 +16,7 @@ public class SecurityService : ISecurityService
     public Guid CreateCryptographicallySecureGuid()
     {
         var bytes = new byte[16];
-        randomNumberGenerator.GetBytes(bytes);
+        _randomNumberGenerator.GetBytes(bytes);
         return new Guid(bytes);
     }
 }

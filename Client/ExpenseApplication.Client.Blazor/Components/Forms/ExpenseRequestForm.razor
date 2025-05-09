@@ -1,4 +1,4 @@
-﻿<EditForm Model="ExpenseForm" OnValidSubmit="OnSubmitHandler" @ref="ExpenseFormRef">
+﻿<EditForm Model="ExpenseForm" OnValidSubmit="OnSubmitHandler" @ref="_expenseFormRef">
     <FluentValidationValidator />
     <MudPaper Class="p-3 mb-4">
         <MudText Typo="Typo.body1" Class="mb-4">Basic Information</MudText>
@@ -73,18 +73,18 @@
     [Parameter, EditorRequired]
     public EventCallback<ExpenseFormDto> OnSubmit { get; set; }
 
-    private EditForm ExpenseFormRef;
+    private EditForm? _expenseFormRef;
 
     private void OnExpenseItemAddHandler(ExpenseItemDto expenseItem)
     {
         ExpenseForm.ExpenseItems.Add(expenseItem);
-        ExpenseFormRef?.EditContext?.Validate();
+        _expenseFormRef?.EditContext?.Validate();
     }
 
     private void OnExpenseItemRemoveHandler(ExpenseItemDto expenseItem)
     {
         ExpenseForm.ExpenseItems.Remove(expenseItem);
-        ExpenseFormRef?.EditContext?.Validate();
+        _expenseFormRef?.EditContext?.Validate();
     }
 
     private async Task OnSubmitHandler()

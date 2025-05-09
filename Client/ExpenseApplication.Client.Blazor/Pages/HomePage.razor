@@ -52,22 +52,22 @@
     private List<ExpenseDto> ToBePaidExpenses => AccountantExpensesState.Value.AccountantExpenses.Where(expense => expense.ExpenseStatus is ExpenseStatus.Approved).ToList();
     private bool IsToBePaidExpensesExist => AccountantExpensesState.Value.AccountantExpenses.Any(expense => expense.ExpenseStatus is ExpenseStatus.Approved);
 
-    private string? userRoles = null;
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private string? _userRoles;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     protected override async Task OnInitializedAsync()
     {
         var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        userRoles = authenticationState?.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+        _userRoles = authenticationState?.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
 
-        if (userRoles?.Contains(CustomRoleConstants.Manager) is true && !ManagerExpensesInitialized)
+        if (_userRoles?.Contains(CustomRoleConstants.Manager) is true && !ManagerExpensesInitialized)
         {
-            Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(new ExpenseRequestFilterDto(), cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new ManagerExpensesActions.LoadManagerExpensesAction(new ExpenseRequestFilterDto(), _cancellationTokenSource.Token));
         }
 
-        if (userRoles?.Contains(CustomRoleConstants.Accountant) is true && !AccountantExpensesInitialized)
+        if (_userRoles?.Contains(CustomRoleConstants.Accountant) is true && !AccountantExpensesInitialized)
         {
-            Dispatcher.Dispatch(new AccountantExpensesActions.LoadAccountantExpensesAction(new ExpenseRequestFilterDto(), cancellationTokenSource.Token));
+            Dispatcher.Dispatch(new AccountantExpensesActions.LoadAccountantExpensesAction(new ExpenseRequestFilterDto(), _cancellationTokenSource.Token));
         }
 
         await base.OnInitializedAsync();
@@ -89,7 +89,7 @@
                         ExpenseId = expense.Id,
                         Comments = addCommentsDialogResult.Value.Item2
                     },
-                cancellationTokenSource.Token));
+                _cancellationTokenSource.Token));
         }
     }
 
@@ -111,7 +111,7 @@
                         ExpenseId = expense.Id,
                         Comments = addCommentsDialogResult.Value.Item2
                     },
-                cancellationTokenSource.Token));
+                _cancellationTokenSource.Token));
         }
     }
 
@@ -131,13 +131,14 @@
                         ExpenseId = expense.Id,
                         Comments = addCommentsDialogResult.Value.Item2
                     },
-                cancellationTokenSource.Token));
+                _cancellationTokenSource.Token));
         }
     }
 
     protected override ValueTask DisposeAsyncCore(bool disposing)
     {
-        cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
         return base.DisposeAsyncCore(disposing);
     }
 }

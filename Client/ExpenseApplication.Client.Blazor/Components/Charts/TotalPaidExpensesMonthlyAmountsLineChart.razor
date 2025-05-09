@@ -1,14 +1,14 @@
 ﻿@using ApexCharts
 
-<div style=@($"min-width: {width}; min-height: {height};")>
+<div style=@($"min-width: {_width}; min-height: {_height};")>
     @if (!Loading)
     {
         @if (TotalPaidExpensesMonthlyAmounts.Any())
         {
             <ApexChart TItem="TotalPaidExpensesMonthlyAmountDto"
                        Title="Total Paid Expenses Monthly Amount"
-                       Height="height"
-                       Options="apexChartOptions">
+                       Height="_height"
+                       Options="_apexChartOptions">
 
                 @foreach (var currencyType in TotalPaidExpensesMonthlyAmounts.Select(x => x.CurrencyTypeTotalPaidExpensesAmount.CurrencyType).Distinct())
                 {
@@ -36,13 +36,13 @@
     [Parameter]
     public bool Loading { get; set; } = false;
 
-    private ApexChartOptions<TotalPaidExpensesMonthlyAmountDto> apexChartOptions = new();
-    private string width = "100%";
-    private string height = "400px";
+    private ApexChartOptions<TotalPaidExpensesMonthlyAmountDto> _apexChartOptions = new();
+    private string _width = "100%";
+    private string _height = "400px";
 
     protected override void OnInitialized()
     {
-        apexChartOptions.Chart = new Chart
+        _apexChartOptions.Chart = new Chart
             {
                 Toolbar = new Toolbar
                 {

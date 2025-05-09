@@ -7,7 +7,7 @@
 @inject IState<EmployeeExpensesState> EmployeeExpensesState
 <PageTitle>Expense request</PageTitle>
 
-<PageHeader Title="@(isEditMode ? "Edit expense request": "Create expense request")" Icon="@Icons.Material.Outlined.DocumentScanner" />
+<PageHeader Title="@(_isEditMode ? "Edit expense request": "Create expense request")" Icon="@Icons.Material.Outlined.DocumentScanner" />
 
 <Loading IsLoading="EmployeeExpensesLoading" />
 <ExpenseRequestForm ExpenseForm="EmployeeEditingExpense" OnSubmit="OnSubmitExpenseRequestHandler" />
@@ -19,22 +19,22 @@
     private bool EmployeeExpensesLoading => EmployeeExpensesState.Value.Loading;
     private ExpenseFormDto EmployeeEditingExpense => EmployeeExpensesState.Value.EmployeeEditingExpense;
 
-    private bool isEditMode = false;
-    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private bool _isEditMode;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     protected override void OnInitialized()
     {
         if (ExpenseId is not null)
         {
-            isEditMode = true;
-            Dispatcher.Dispatch(new EmployeeExpensesActions.LoadEmployeeEditingExpenseAction(ExpenseId.Value, cancellationTokenSource.Token));
+            _isEditMode = true;
+            Dispatcher.Dispatch(new EmployeeExpensesActions.LoadEmployeeEditingExpenseAction(ExpenseId.Value, _cancellationTokenSource.Token));
         }
         base.OnInitialized();
     }
 
     private async Task OnSubmitExpenseRequestHandler(ExpenseFormDto expenseForm)
     {
-        if (isEditMode)
+        if (_isEditMode)
         {
             var confirmationDialogParameters = new DialogParameters<ConfirmationDialog>
             {
@@ -44,7 +44,7 @@
             var confirmationDialogResult = await confirmationDialogReference.GetReturnValueAsync<bool?>();
             if (confirmationDialogResult is true)
             {
-                Dispatcher.Dispatch(new EmployeeExpensesActions.SubmitEditExpenseAction(expenseForm, cancellationTokenSource.Token));
+                Dispatcher.Dispatch(new EmployeeExpensesActions.SubmitEditExpenseAction(expenseForm, _cancellationTokenSource.Token));
             }
         }
         else
@@ -57,7 +57,7 @@
             var confirmationDialogResult = await confirmationDialogReference.GetReturnValueAsync<bool?>();
             if (confirmationDialogResult is true)
             {
-                Dispatcher.Dispatch(new EmployeeExpensesActions.SubmitCreateExpenseAction(expenseForm, cancellationTokenSource.Token));
+                Dispatcher.Dispatch(new EmployeeExpensesActions.SubmitCreateExpenseAction(expenseForm, _cancellationTokenSource.Token));
             }
         }
     }
@@ -65,7 +65,8 @@
     protected override ValueTask DisposeAsyncCore(bool disposing)
     {
         Dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeEditingExpenseAction(new ExpenseFormDto()));
-        cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
         return base.DisposeAsyncCore(disposing);
     }
 }
