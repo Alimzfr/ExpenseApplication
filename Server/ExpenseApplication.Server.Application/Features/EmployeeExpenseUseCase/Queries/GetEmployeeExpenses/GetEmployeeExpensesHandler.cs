@@ -15,7 +15,7 @@ public class GetEmployeeExpensesHandler(IUnitOfWork unitOfWork, IMapper mapper) 
             .Include(expense => expense.User)
             .Include(expense => expense.ExpenseItems)
             .Include(expense => expense.ExpenseTransactions)
-            .OrderByDescending(expense => expense.ModifyDate);
+            .OrderByDescending(expense => expense.ModifiedDateTime);
 
         var expenses = await expensesQuery.ToListAsync(cancellationToken);
 

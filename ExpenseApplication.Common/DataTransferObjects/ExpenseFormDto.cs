@@ -8,5 +8,5 @@ public class ExpenseFormDto
     public string Title { get; set; }
     public string? Description { get; set; }
     public CurrencyType CurrencyType { get; set; }
-    public List<ExpenseItemDto> ExpenseItems { get; set; } = new();
+    public List<ExpenseItemDto> ExpenseItems { get; set; } = [];
 }

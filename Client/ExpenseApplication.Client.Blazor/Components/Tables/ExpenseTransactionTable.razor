@@ -16,70 +16,70 @@
         }
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Title="Expense Trace Id" Property="expense => expense.ExpenseTraceId"/>
-        <PropertyColumn Title="Expense By" Property="expense => expense.ExpenseUsername"/>
-        <PropertyColumn Title="Transacted By" Property="expense => expense.TransactedByUsername"/>
+        <PropertyColumn Title="Expense Trace Id" Property="expense => expense.ExpenseTraceId" />
+        <PropertyColumn Title="Expense By" Property="expense => expense.ExpenseUsername" />
+        <PropertyColumn Title="Transacted By" Property="expense => expense.TransactedByUsername" />
         <TemplateColumn Title="Action Type">
             <CellTemplate>
-                @if (context.Item.ActionType is ExpenseActionType.Submit)
+                @switch (context.Item.ActionType)
                 {
-                    <MudChip T="ExpenseActionType"
-                             Variant="Variant.Outlined"
-                             Size="Size.Small"
-                             Class="m-0">
-                        @ExpenseActionType.Submit
-                    </MudChip>
-                }
-                @if (context.Item.ActionType is ExpenseActionType.Edit)
-                {
-                    <MudChip T="ExpenseActionType"
-                             Color="Color.Warning"
-                             Variant="Variant.Outlined"
-                             Size="Size.Small"
-                             Class="m-0">
-                        @ExpenseActionType.Edit
-                    </MudChip>
-                }
-                @if (context.Item.ActionType is ExpenseActionType.Approve)
-                {
-                    <MudChip T="ExpenseActionType"
-                             Color="Color.Success"
-                             Variant="Variant.Outlined"
-                             Size="Size.Small"
-                             Class="m-0">
-                        @ExpenseActionType.Approve
-                    </MudChip>
-                }
-                @if (context.Item.ActionType is ExpenseActionType.Reject)
-                {
-                    <MudChip T="ExpenseActionType"
-                             Color="Color.Error"
-                             Variant="Variant.Outlined"
-                             Size="Size.Small"
-                             Class="m-0">
-                        @ExpenseActionType.Reject
-                    </MudChip>
-                }
-                @if (context.Item.ActionType is ExpenseActionType.Payment)
-                {
-                    <MudChip T="ExpenseActionType"
-                             Color="Color.Info"
-                             Variant="Variant.Outlined"
-                             Size="Size.Small"
-                             Class="m-0">
-                        @ExpenseActionType.Payment
-                    </MudChip>
+                    case ExpenseActionType.Submit:
+                        <MudChip T="ExpenseActionType"
+                                 Variant="Variant.Outlined"
+                                 Size="Size.Small"
+                                 Class="m-0">
+                            @ExpenseActionType.Submit
+                        </MudChip>
+                        break;
+                    case ExpenseActionType.Edit:
+                        <MudChip T="ExpenseActionType"
+                                 Color="Color.Warning"
+                                 Variant="Variant.Outlined"
+                                 Size="Size.Small"
+                                 Class="m-0">
+                            @ExpenseActionType.Edit
+                        </MudChip>
+                        break;
+                    case ExpenseActionType.Approve:
+                        <MudChip T="ExpenseActionType"
+                                 Color="Color.Success"
+                                 Variant="Variant.Outlined"
+                                 Size="Size.Small"
+                                 Class="m-0">
+                            @ExpenseActionType.Approve
+                        </MudChip>
+                        break;
+                    case ExpenseActionType.Reject:
+                        <MudChip T="ExpenseActionType"
+                                 Color="Color.Error"
+                                 Variant="Variant.Outlined"
+                                 Size="Size.Small"
+                                 Class="m-0">
+                            @ExpenseActionType.Reject
+                        </MudChip>
+                        break;
+                    case ExpenseActionType.Payment:
+                        <MudChip T="ExpenseActionType"
+                                 Color="Color.Info"
+                                 Variant="Variant.Outlined"
+                                 Size="Size.Small"
+                                 Class="m-0">
+                            @ExpenseActionType.Payment
+                        </MudChip>
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Title="Action DateTime" Property="@(expense => expense.ActionDateTime.ToString("f"))"/>
-        <PropertyColumn Title="Comments" Property="expense => expense.Comments"/>
+        <PropertyColumn Title="Action DateTime" Property="@(expense => expense.ActionDateTime.ToString("f"))" />
+        <PropertyColumn Title="Comments" Property="expense => expense.Comments" />
     </Columns>
     <NoRecordsContent>
         <MudText>No matching records found</MudText>
     </NoRecordsContent>
     <PagerContent>
-        <MudDataGridPager T="ExpenseTransactionDto"/>
+        <MudDataGridPager T="ExpenseTransactionDto" />
     </PagerContent>
 </MudDataGrid>
 

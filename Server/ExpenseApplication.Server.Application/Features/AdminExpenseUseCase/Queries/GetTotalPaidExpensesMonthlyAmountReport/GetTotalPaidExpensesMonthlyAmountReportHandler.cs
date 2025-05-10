@@ -7,8 +7,8 @@ public class GetTotalPaidExpensesMonthlyAmountReportHandler(IUnitOfWork unitOfWo
         var expenseDbSet = unitOfWork.Set<Expense>();
 
         var totalPaidExpensesMonthlyAmounts = await expenseDbSet.AsNoTracking()
-            .Where(expense => expense.CreatedDate.Year == request.Year)
-            .GroupBy(expense => new { expense.CurrencyType, expense.CreatedDate.Month })
+            .Where(expense => expense.CreatedDateTime.Year == request.Year)
+            .GroupBy(expense => new { expense.CurrencyType, expense.CreatedDateTime.Month })
             .Select(grouping => new TotalPaidExpensesMonthlyAmountDto
             {
                 MonthNumber = grouping.Key.Month,

@@ -11,8 +11,8 @@ public class ExpenseDto
     public string? Description { get; set; }
     public CurrencyType CurrencyType { get; set; }
     public ExpenseStatus ExpenseStatus { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public DateTime ModifyDate { get; set; }
+    public DateTime CreatedDateTime { get; set; }
+    public DateTime ModifiedDateTime { get; set; }
     public string? Comments { get; set; }
     public List<ExpenseItemDto> ExpenseItems { get; set; }
 }

@@ -1,30 +1,45 @@
-﻿<EditForm Model="_expenseItem" OnValidSubmit="OnSubmitHandler">
+﻿<EditForm Model="ExpenseItem" OnValidSubmit="OnSubmitHandler">
     <FluentValidationValidator />
     <div class="container-fluid p-0">
         <div class="row">
-            <div class="col-lg-8 col-12 mb-4">
-                <MudTextField T="string"
-                              Label="Purpose"
-                              Variant="Variant.Outlined"
-                              Margin="Margin.Dense"
-                              @bind-Value="_expenseItem.Purpose"
-                              For="@(() => _expenseItem.Purpose)" />
+            <div class="col-12 mb-4">
+                <MudDateWheelPicker Label="Occurrance date"
+                                    Variant="Variant.Outlined"
+                                    Margin="Margin.Dense"
+                                    DateView="DateView.Both"
+                                    ShowToolbar="true"
+                                    ShowHeader="true"
+                                    SubmitOnClose="true"
+                                    TransformOrigin="Origin.TopCenter"
+                                    InputAdornment="Adornment.End"
+                                    AnchorOrigin="Origin.BottomCenter"
+                                    DateFormat="dd/MM/yyyy hh:mm tt"
+                                    @bind-Value="ExpenseItem.OccurrenceDateTime"
+                                    For="@(() => ExpenseItem.OccurrenceDateTime)" />
             </div>
-            <div class="col-lg-4 col-12 mb-4">
+            <div class="col-12 mb-4">
                 <MudNumericField T="decimal"
                                  Label="Amount"
                                  Variant="Variant.Outlined"
                                  Margin="Margin.Dense"
                                  Adornment="Adornment.End"
                                  AdornmentText="@(new CultureInfo(CurrencyType.GetEnumDescription()).NumberFormat.CurrencySymbol)"
-                                 @bind-Value="_expenseItem.Amount"
-                                 For="@(() => _expenseItem.Amount)" />
+                                 @bind-Value="ExpenseItem.Amount"
+                                 For="@(() => ExpenseItem.Amount)" />
+            </div>
+            <div class="col-12 mb-4">
+                <MudTextField T="string"
+                              Label="Purpose"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              @bind-Value="ExpenseItem.Purpose"
+                              For="@(() => ExpenseItem.Purpose)" />
             </div>
             <div class="col-12 text-end">
                 <MudButton Variant="Variant.Filled"
                            ButtonType="ButtonType.Submit"
                            Color="Color.Info">
-                    Add
+                    Submit
                 </MudButton>
             </div>
         </div>
@@ -33,16 +48,16 @@
 
 @code {
     [Parameter, EditorRequired]
-    public EventCallback<ExpenseItemDto> OnAdd { get; set; }
+    public ExpenseItemDto ExpenseItem { get; set; } = new();
 
     [Parameter, EditorRequired]
     public CurrencyType CurrencyType { get; set; }
 
-    private ExpenseItemDto _expenseItem = new();
+    [Parameter, EditorRequired]
+    public EventCallback<ExpenseItemDto> OnAdd { get; set; }
 
     private async Task OnSubmitHandler(EditContext editContext)
     {
-        await OnAdd.InvokeAsync(_expenseItem);
-        _expenseItem = new ExpenseItemDto();
+        await OnAdd.InvokeAsync(ExpenseItem);
     }
 }

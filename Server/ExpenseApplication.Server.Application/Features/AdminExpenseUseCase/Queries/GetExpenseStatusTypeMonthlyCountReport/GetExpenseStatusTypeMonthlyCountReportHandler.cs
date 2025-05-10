@@ -7,8 +7,8 @@ public class GetExpenseStatusTypeMonthlyCountReportHandler(IUnitOfWork unitOfWor
         var expenseDbSet = unitOfWork.Set<Expense>();
 
         var expenseStatusTypeMonthlyCounts = await expenseDbSet.AsNoTracking()
-            .Where(expense => expense.CreatedDate.Year == request.Year)
-            .GroupBy(expense => new { expense.ExpenseStatus, expense.CreatedDate.Month })
+            .Where(expense => expense.CreatedDateTime.Year == request.Year)
+            .GroupBy(expense => new { expense.ExpenseStatus, expense.CreatedDateTime.Month })
             .Select(grouping => new ExpenseStatusTypeMonthlyCountDto
             {
                 MonthNumber = grouping.Key.Month,

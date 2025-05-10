@@ -1,0 +1,21 @@
+﻿<MudDialog>
+    <DialogContent>
+        <ExpenseItemRequestForm ExpenseItem="ExpenseItem" CurrencyType="CurrencyType" OnAdd="OnExpenseItemAddHandler" />
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialogInstance { get; set; }
+
+    [Parameter]
+    public ExpenseItemDto ExpenseItem { get; set; } = new();
+
+    [Parameter]
+    public CurrencyType CurrencyType { get; set; }
+
+    private void OnExpenseItemAddHandler(ExpenseItemDto expenseItem)
+    {
+        MudDialogInstance?.Close(DialogResult.Ok(expenseItem));
+    }
+}

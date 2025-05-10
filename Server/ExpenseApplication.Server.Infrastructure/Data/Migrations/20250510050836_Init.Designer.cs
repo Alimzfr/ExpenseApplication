@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpenseApplication.Server.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250509113859_Init")]
+    [Migration("20250510050836_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -34,12 +34,12 @@ namespace ExpenseApplication.Server.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreateBy")
+                    b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedDateTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<short>("CurrencyType")
@@ -58,11 +58,10 @@ namespace ExpenseApplication.Server.Infrastructure.Data.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar");
 
-                    b.Property<DateTime>("ModifyDate")
+                    b.Property<DateTime?>("ModifiedDateTime")
                         .IsConcurrencyToken()
                         .HasColumnType("datetime2(0)");
 
@@ -79,9 +78,9 @@ namespace ExpenseApplication.Server.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedDate");
+                    b.HasIndex("CreatedDateTime");
 
-                    b.HasIndex("ModifyDate");
+                    b.HasIndex("ModifiedDateTime");
 
                     b.HasIndex("TraceId")
                         .IsUnique();
@@ -106,6 +105,9 @@ namespace ExpenseApplication.Server.Infrastructure.Data.Migrations
                     b.Property<int>("ExpenseId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("OccurrenceDateTime")
+                        .HasColumnType("datetime2(0)");
+
                     b.Property<string>("Purpose")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -114,6 +116,8 @@ namespace ExpenseApplication.Server.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ExpenseId");
+
+                    b.HasIndex("OccurrenceDateTime");
 
                     b.ToTable("ExpenseItems");
                 });

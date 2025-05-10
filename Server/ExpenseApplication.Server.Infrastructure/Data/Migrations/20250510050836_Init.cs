@@ -71,10 +71,10 @@ namespace ExpenseApplication.Server.Infrastructure.Data.Migrations
                     Description = table.Column<string>(type: "varchar(450)", maxLength: 450, nullable: true),
                     CurrencyType = table.Column<short>(type: "smallint", nullable: false),
                     ExpenseStatus = table.Column<short>(type: "smallint", nullable: false),
-                    CreateBy = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    ModifiedBy = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
-                    ModifyDate = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
+                    CreatedBy = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    ModifiedBy = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    CreatedDateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false),
+                    ModifiedDateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
@@ -168,7 +168,8 @@ namespace ExpenseApplication.Server.Infrastructure.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ExpenseId = table.Column<int>(type: "int", nullable: false),
                     Purpose = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    OccurrenceDateTime = table.Column<DateTime>(type: "datetime2(0)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -216,14 +217,19 @@ namespace ExpenseApplication.Server.Infrastructure.Data.Migrations
                 column: "ExpenseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Expenses_CreatedDate",
-                table: "Expenses",
-                column: "CreatedDate");
+                name: "IX_ExpenseItems_OccurrenceDateTime",
+                table: "ExpenseItems",
+                column: "OccurrenceDateTime");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Expenses_ModifyDate",
+                name: "IX_Expenses_CreatedDateTime",
                 table: "Expenses",
-                column: "ModifyDate");
+                column: "CreatedDateTime");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Expenses_ModifiedDateTime",
+                table: "Expenses",
+                column: "ModifiedDateTime");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Expenses_TraceId",

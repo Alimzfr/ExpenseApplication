@@ -24,8 +24,8 @@
 
 <ExpenseTable Title="Expense Forms"
               Expenses="Expenses"
-              IsActionColumnShow="true"
-              Actions="new[] { ExpenseActionType.Submit, ExpenseActionType.Edit }"
+              ReadOnly="false"
+              Actions="[ExpenseActionType.Submit, ExpenseActionType.Edit]"
               OnEdit="OnEditClickHandler"
               IsRefreshButtonShow="true"
               OnRefresh="OnRefreshClickHandler"

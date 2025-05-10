@@ -29,7 +29,7 @@ public class ApproveExpenseHandler(IUnitOfWork unitOfWork) : ICommandHandler<App
         }
 
         expense.ExpenseStatus = ExpenseStatus.Approved;
-        expense.ModifyDate = request.CurrentDateTime;
+        expense.ModifiedDateTime = request.CurrentDateTime;
         expense.ModifiedBy = user.Username;
         expenseTransactionDbSet.Add(new ExpenseTransaction
         {

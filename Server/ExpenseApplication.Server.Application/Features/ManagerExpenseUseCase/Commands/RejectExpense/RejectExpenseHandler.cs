@@ -31,7 +31,7 @@ public class RejectExpenseHandler(IUnitOfWork unitOfWork) : ICommandHandler<Reje
         }
 
         expense.ExpenseStatus = ExpenseStatus.Rejected;
-        expense.ModifyDate = request.CurrentDateTime;
+        expense.ModifiedDateTime = request.CurrentDateTime;
         expense.ModifiedBy = user.Username;
         expenseTransactionDbSet.Add(new ExpenseTransaction
         {

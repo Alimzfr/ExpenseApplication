@@ -48,22 +48,22 @@ public class Expense
     /// <summary>
     /// The username of the person who created the expense.
     /// </summary>
-    public string CreateBy { get; set; }
+    public string CreatedBy { get; set; }
 
     /// <summary>
     /// The username of the person who last modified the expense.
     /// </summary>
-    public string ModifiedBy { get; set; }
+    public string? ModifiedBy { get; set; }
 
     /// <summary>
     /// The date and time when the expense was created.
     /// </summary>
-    public DateTime CreatedDate { get; set; }
+    public DateTime CreatedDateTime { get; set; }
 
     /// <summary>
     /// The date and time when the expense was last modified.
     /// </summary>
-    public DateTime ModifyDate { get; set; }
+    public DateTime? ModifiedDateTime { get; set; }
 
     /// <summary>
     /// Indicates whether the expense is deleted (soft delete).

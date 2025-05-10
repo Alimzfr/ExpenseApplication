@@ -16,14 +16,11 @@ public class CreateExpenseHandler(IUnitOfWork unitOfWork, IMapper mapper) : ICom
 
         var mappedExpense = mapper.Map<Expense>(request.ExpenseForm);
         var mappedExpenseItems = mapper.Map<List<ExpenseItem>>(request.ExpenseForm.ExpenseItems);
-
         mappedExpense.UserId = request.UserId;
         mappedExpense.TraceId = (1000 + expenseDbSet.AsNoTracking().Count());
         mappedExpense.ExpenseStatus = ExpenseStatus.Pending;
-        mappedExpense.CreatedDate = request.CurrentDateTime;
-        mappedExpense.CreateBy = user.Username;
-        mappedExpense.ModifyDate = request.CurrentDateTime;
-        mappedExpense.ModifiedBy = user.Username;
+        mappedExpense.CreatedDateTime = request.CurrentDateTime;
+        mappedExpense.CreatedBy = user.Username;
         mappedExpense.ExpenseItems = mappedExpenseItems;
 
         var expenseTransaction = new ExpenseTransaction

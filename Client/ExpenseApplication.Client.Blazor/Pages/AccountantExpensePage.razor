@@ -17,8 +17,8 @@
 
 <ExpenseTable Title="Expense Forms"
               Expenses="AccountantExpenses"
-              IsActionColumnShow="true"
-              Actions="new[] { ExpenseActionType.Payment }"
+              ReadOnly="false"
+              Actions="[ExpenseActionType.Payment]"
               OnPay="OnPayClickHandler"
               IsRefreshButtonShow="true"
               OnRefresh="OnRefreshClickHandler"

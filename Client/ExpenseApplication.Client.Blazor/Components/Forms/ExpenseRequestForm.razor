@@ -38,25 +38,21 @@
             </div>
         </div>
     </MudPaper>
-    <MudPaper Class="p-3 mb-4">
-        <MudText Typo="Typo.body1" Class="mb-4">Detail Information</MudText>
-        <div class="mb-4">
-            <ExpenseItemRequestForm CurrencyType="ExpenseForm.CurrencyType" OnAdd="OnExpenseItemAddHandler" />
+
+    <ExpenseItemTable Title="Expense Items"
+                      ExpenseItems="ExpenseForm.ExpenseItems"
+                      CurrencyType="ExpenseForm.CurrencyType"
+                      ReadOnly="false"
+                      OnAdd="OnExpenseItemAddHandler"
+                      onEdit="OnExpenseItemEditHandler"
+                      OnRemove="OnExpenseItemRemoveHandler" />
+    <div class="mud-input-control-helper-container px-2">
+        <div class="d-flex mud-input-helper-text mud-input-error">
+            <ValidationMessage AdditionalAttributes="@(new Dictionary<string, object>{{"class","me-auto"}})" For="() => ExpenseForm.ExpenseItems" />
         </div>
-        <div>
-            <ExpenseItemTable Title="Expense Form Items"
-                              ExpenseItems="ExpenseForm.ExpenseItems"
-                              CurrencyType="ExpenseForm.CurrencyType"
-                              IsActionColumnShow="true"
-                              OnRemove="OnExpenseItemRemoveHandler" />
-            <div class="mud-input-control-helper-container px-2">
-                <div class="d-flex mud-input-helper-text mud-input-error">
-                    <ValidationMessage AdditionalAttributes="@(new Dictionary<string, object>{{"class","me-auto"}})" For="() => ExpenseForm.ExpenseItems" />
-                </div>
-            </div>
-        </div>
-    </MudPaper>
-    <MudPaper Class="d-flex flex-md-row flex-column justify-md-space-between  p-3">
+    </div>
+
+    <MudPaper Class="d-flex flex-md-row flex-column justify-md-space-between mt-4 p-3">
         <MudText Typo="Typo.body1" Class="py-1"><b>Total Amount: @ExpenseForm.ExpenseItems.Sum(expenseItem => expenseItem.Amount).ToString("C", new CultureInfo(ExpenseForm.CurrencyType.GetEnumDescription()))</b></MudText>
         <MudButton Variant="Variant.Filled"
                    ButtonType="ButtonType.Submit"
@@ -75,9 +71,14 @@
 
     private EditForm? _expenseFormRef;
 
-    private void OnExpenseItemAddHandler(ExpenseItemDto expenseItem)
+    private void OnExpenseItemAddHandler(ExpenseItemDto addedExpenseItem)
     {
-        ExpenseForm.ExpenseItems.Add(expenseItem);
+        ExpenseForm.ExpenseItems.Add(addedExpenseItem);
+        _expenseFormRef?.EditContext?.Validate();
+    }
+
+    private void OnExpenseItemEditHandler(ExpenseItemDto editedExpenseItem)
+    {
         _expenseFormRef?.EditContext?.Validate();
     }
 
@@ -91,4 +92,5 @@
     {
         await OnSubmit.InvokeAsync(ExpenseForm);
     }
+
 }

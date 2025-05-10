@@ -12,5 +12,7 @@ public class ExpenseItemConfiguration : IEntityTypeConfiguration<ExpenseItem>
         builder.HasOne(expenseItem => expenseItem.Expense).WithMany(expenseMaster => expenseMaster.ExpenseItems).HasForeignKey(expenseDetail => expenseDetail.ExpenseId);
         builder.Property(expenseItem => expenseItem.Purpose).HasColumnType("varchar").HasMaxLength(100).IsRequired();
         builder.Property(expenseItem => expenseItem.Amount).IsRequired();
+        builder.Property(expense => expense.OccurrenceDateTime).HasColumnType("datetime2(0)").IsRequired();
+        builder.HasIndex(expense => expense.OccurrenceDateTime);
     }
 }

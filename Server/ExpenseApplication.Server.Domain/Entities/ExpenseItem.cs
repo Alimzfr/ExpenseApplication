@@ -26,4 +26,9 @@ public class ExpenseItem
     /// The spent amount of the expense item.
     /// </summary>
     public decimal Amount { get; set; }
+
+    /// <summary>
+    /// The date and time when the expense item was occurred.
+    /// </summary>
+    public DateTime OccurrenceDateTime { get; set; }
 }

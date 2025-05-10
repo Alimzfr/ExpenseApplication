@@ -24,7 +24,7 @@ public class UpdateExpenseHandler(IUnitOfWork unitOfWork, IMapper mapper) : ICom
             throw new NotFoundException("Expense does not exist!");
         }
 
-        if (expense?.ExpenseStatus is not (ExpenseStatus.Pending or ExpenseStatus.Rejected))
+        if (expense.ExpenseStatus is not (ExpenseStatus.Pending or ExpenseStatus.Rejected))
         {
             throw new BadRequestException("Expenses can not be edited in this status!");
         }
@@ -32,7 +32,7 @@ public class UpdateExpenseHandler(IUnitOfWork unitOfWork, IMapper mapper) : ICom
         expense = request.ExpenseForm.Adapt(expense);
         expense.ExpenseItems = request.ExpenseForm.ExpenseItems.Adapt(expense.ExpenseItems);
         expense.ExpenseStatus = ExpenseStatus.Pending;
-        expense.ModifyDate = request.CurrentDateTime;
+        expense.ModifiedDateTime = request.CurrentDateTime;
         expense.ModifiedBy = user.Username;
         expenseTransactionDbSet.Add(new ExpenseTransaction
         {

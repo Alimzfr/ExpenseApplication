@@ -26,7 +26,7 @@ public class PayExpenseHandler(IUnitOfWork unitOfWork) : ICommandHandler<PayExpe
         }
 
         expense.ExpenseStatus = ExpenseStatus.Paid;
-        expense.ModifyDate = request.CurrentDateTime;
+        expense.ModifiedDateTime = request.CurrentDateTime;
         expense.ModifiedBy = user.Username;
         expenseTransactionDbSet.Add(new ExpenseTransaction
         {

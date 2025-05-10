@@ -17,8 +17,8 @@
 
 <ExpenseTable Title="Expense Forms"
               Expenses="ManagerExpenses"
-              IsActionColumnShow="true"
-              Actions="new[] { ExpenseActionType.Approve, ExpenseActionType.Reject }"
+              ReadOnly="false"
+              Actions="[ExpenseActionType.Approve, ExpenseActionType.Reject]"
               OnApprove="OnApproveClickHandler"
               OnReject="OnRejectClickHandler"
               IsRefreshButtonShow="true"

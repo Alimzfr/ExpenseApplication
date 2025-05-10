@@ -23,5 +23,10 @@ public class ExpenseItemValidator : AbstractValidator<ExpenseItemDto>
             .LessThanOrEqualTo(5000)
             .WithMessage("Amount should be less than or equal to 5000!")
             .WithName(expenseForm => nameof(expenseForm.Amount));
+
+        RuleFor(v => v.OccurrenceDateTime)
+            .NotNull()
+            .WithMessage("Occurrence date time is required!")
+            .WithName(expenseForm => nameof(expenseForm.Amount));
     }
 }

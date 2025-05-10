@@ -34,7 +34,7 @@ public class ManagerExpensesEffects(IState<ManagerExpensesState> managerExpenses
             var oldExpense = expenses.First(x => x.Id == action.ApproveExpenseForm.ExpenseId);
             expenses.Remove(oldExpense);
             expenses.Add(result.Data);
-            dispatcher.Dispatch(new ManagerExpensesActions.SetManagerExpensesAction(expenses.OrderByDescending(expense => expense.ModifyDate).ToList()));
+            dispatcher.Dispatch(new ManagerExpensesActions.SetManagerExpensesAction(expenses.OrderByDescending(expense => expense.ModifiedDateTime).ToList()));
             dispatcher.Dispatch(new ManagerExpensesActions.SetManagerExpensesInitializedAction(true));
             dispatcher.Dispatch(new ManagerExpensesActions.SetManagerExpensesLoadingAction(false));
         }
@@ -58,7 +58,7 @@ public class ManagerExpensesEffects(IState<ManagerExpensesState> managerExpenses
             var oldExpense = expenses.First(x => x.Id == action.RejectExpenseForm.ExpenseId);
             expenses.Remove(oldExpense);
             expenses.Add(result.Data);
-            dispatcher.Dispatch(new ManagerExpensesActions.SetManagerExpensesAction(expenses.OrderByDescending(expense => expense.ModifyDate).ToList()));
+            dispatcher.Dispatch(new ManagerExpensesActions.SetManagerExpensesAction(expenses.OrderByDescending(expense => expense.ModifiedDateTime).ToList()));
             dispatcher.Dispatch(new ManagerExpensesActions.SetManagerExpensesInitializedAction(true));
             dispatcher.Dispatch(new ManagerExpensesActions.SetManagerExpensesLoadingAction(false));
         }

@@ -14,7 +14,7 @@ public class GetAdminExpensesHandler(IUnitOfWork unitOfWork, IMapper mapper) : I
             .Include(expense => expense.User)
             .Include(expense => expense.ExpenseItems)
             .Include(expense => expense.ExpenseTransactions)
-            .OrderByDescending(expense => expense.ModifyDate)
+            .OrderByDescending(expense => expense.ModifiedDateTime)
             .ToListAsync(cancellationToken);
 
         var mappedExpenses = mapper.Map<List<ExpenseDto>>(expenses);

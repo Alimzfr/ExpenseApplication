@@ -16,12 +16,12 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
         builder.Property(expense => expense.Description).HasColumnType("varchar").HasMaxLength(450);
         builder.Property(expense => expense.CurrencyType).IsRequired();
         builder.Property(expense => expense.ExpenseStatus).IsRequired();
-        builder.Property(expense => expense.CreatedDate).HasColumnType("datetime2(0)").IsRequired();
-        builder.HasIndex(expense => expense.CreatedDate);
-        builder.Property(expense => expense.CreateBy).HasColumnType("varchar").HasMaxLength(100).IsRequired();
-        builder.Property(expense => expense.ModifyDate).HasColumnType("datetime2(0)").IsRequired().IsConcurrencyToken();
-        builder.HasIndex(expense => expense.ModifyDate);
-        builder.Property(expense => expense.ModifiedBy).HasColumnType("varchar").HasMaxLength(100).IsRequired();
+        builder.Property(expense => expense.CreatedDateTime).HasColumnType("datetime2(0)").IsRequired();
+        builder.HasIndex(expense => expense.CreatedDateTime);
+        builder.Property(expense => expense.CreatedBy).HasColumnType("varchar").HasMaxLength(100).IsRequired();
+        builder.Property(expense => expense.ModifiedDateTime).HasColumnType("datetime2(0)").IsConcurrencyToken();
+        builder.HasIndex(expense => expense.ModifiedDateTime);
+        builder.Property(expense => expense.ModifiedBy).HasColumnType("varchar").HasMaxLength(100);
         builder.Property(expense => expense.IsDeleted).HasDefaultValue(false).IsRequired();
     }
 }

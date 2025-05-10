@@ -34,7 +34,7 @@ public class AccountantExpensesEffects(IState<AccountantExpensesState> accountan
             var oldExpense = expenses.First(x => x.Id == action.PayExpenseForm.ExpenseId);
             expenses.Remove(oldExpense);
             expenses.Add(result.Data);
-            dispatcher.Dispatch(new AccountantExpensesActions.SetAccountantExpensesAction(expenses.OrderByDescending(expense => expense.ModifyDate).ToList()));
+            dispatcher.Dispatch(new AccountantExpensesActions.SetAccountantExpensesAction(expenses.OrderByDescending(expense => expense.ModifiedDateTime).ToList()));
             dispatcher.Dispatch(new AccountantExpensesActions.SetAccountantExpensesInitializedAction(true));
             dispatcher.Dispatch(new AccountantExpensesActions.SetAccountantExpensesLoadingAction(false));
         }

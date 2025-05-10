@@ -1,4 +1,6 @@
-﻿<MudDataGrid T="ExpenseItemDto"
+﻿@inject IDialogService DialogService
+
+<MudDataGrid T="ExpenseItemDto"
              Items="ExpenseItems"
              RowsPerPage="10"
              Striped="false"
@@ -8,20 +10,42 @@
     <ToolBarContent>
         <MudText Typo="Typo.body1">@Title</MudText>
         <MudSpacer />
+        @if (!ReadOnly)
+        {
+            <MudTooltip Text="Add">
+                <MudIconButton ButtonType="ButtonType.Button"
+                               Variant="Variant.Filled"
+                               Color="Color.Success"
+                               Size="Size.Small"
+                               Icon="@Icons.Material.Filled.Add"
+                               OnClick="OnAddClickHandler" />
+            </MudTooltip>
+        }
     </ToolBarContent>
     <Columns>
+        <PropertyColumn Title="Occurrence date" Property="expense => expense.OccurrenceDateTime" Editable="true" />
+        <PropertyColumn Title="Amount" Property="@(expense => expense.Amount)" />
         <PropertyColumn Title="Purpose" Property="expense => expense.Purpose" />
-        <PropertyColumn Title="Amount" Property="@(expense => expense.Amount.ToString("C", new CultureInfo(CurrencyType.GetEnumDescription())))" />
-        <TemplateColumn Title="Actions" Hidden="!IsActionColumnShow">
+        <TemplateColumn Title="Actions" Hidden="ReadOnly">
             <CellTemplate>
-                <MudTooltip Text="Remove">
-                    <MudIconButton ButtonType="ButtonType.Button"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Error"
-                                   Size="Size.Small"
-                                   Icon="@Icons.Material.Filled.DeleteOutline"
-                                   OnClick="() => OnRemoveClickHandler(context.Item)" />
-                </MudTooltip>
+                <div>
+                    <MudTooltip Text="Edit">
+                        <MudIconButton ButtonType="ButtonType.Button"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Warning"
+                                       Size="Size.Small"
+                                       Icon="@Icons.Material.Filled.Edit"
+                                       OnClick="() => OnEditClickHandler(context.Item)"/>
+                    </MudTooltip>
+                    <MudTooltip Text="Remove">
+                        <MudIconButton ButtonType="ButtonType.Button"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       Icon="@Icons.Material.Filled.Delete"
+                                       OnClick="() => OnRemoveClickHandler(context.Item)"/>
+                    </MudTooltip>
+                </div>
             </CellTemplate>
         </TemplateColumn>
     </Columns>
@@ -35,16 +59,52 @@
     public required string Title { get; set; }
 
     [Parameter, EditorRequired]
-    public List<ExpenseItemDto> ExpenseItems { get; set; }
+    public List<ExpenseItemDto> ExpenseItems { get; set; } = [];
 
     [Parameter, EditorRequired]
     public CurrencyType CurrencyType { get; set; }
 
     [Parameter]
-    public bool IsActionColumnShow { get; set; } = false;
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public EventCallback<ExpenseItemDto> OnAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<ExpenseItemDto> OnEdit { get; set; }
 
     [Parameter]
     public EventCallback<ExpenseItemDto> OnRemove { get; set; }
+
+    private async Task OnAddClickHandler()
+    {
+        var addExpenseItemDialogParameters = new DialogParameters<ExpenseItemDialog>
+        {
+            { addExpenseItemDialog => addExpenseItemDialog.CurrencyType, CurrencyType },
+            { addExpenseItemDialog => addExpenseItemDialog.ExpenseItem, new ExpenseItemDto() }
+        };
+        var addExpenseItemDialogReference = await DialogService.ShowAsync<ExpenseItemDialog>("Add Expense Item", addExpenseItemDialogParameters);
+        var addExpenseItemDialogResult = await addExpenseItemDialogReference.GetReturnValueAsync<ExpenseItemDto?>();
+        if (addExpenseItemDialogResult is not null)
+        {
+            await OnAdd.InvokeAsync(addExpenseItemDialogResult);
+        }
+    }
+
+    private async Task OnEditClickHandler(ExpenseItemDto expenseItem)
+    {
+        var editExpenseItemDialogParameters = new DialogParameters<ExpenseItemDialog>
+        {
+            { editExpenseItemDialog => editExpenseItemDialog.CurrencyType, CurrencyType },
+            { editExpenseItemDialog => editExpenseItemDialog.ExpenseItem, expenseItem }
+        };
+        var editExpenseItemDialogReference = await DialogService.ShowAsync<ExpenseItemDialog>("Edit Expense Item", editExpenseItemDialogParameters);
+        var editExpenseItemDialogResult = await editExpenseItemDialogReference.GetReturnValueAsync<ExpenseItemDto?>();
+        if (editExpenseItemDialogResult is not null)
+        {
+            await OnEdit.InvokeAsync(editExpenseItemDialogResult);
+        }
+    }
 
     private async Task OnRemoveClickHandler(ExpenseItemDto? expenseItem)
     {

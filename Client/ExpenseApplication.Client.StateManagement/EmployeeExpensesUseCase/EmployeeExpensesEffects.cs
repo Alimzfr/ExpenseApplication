@@ -50,7 +50,7 @@ public class EmployeeExpensesEffects(IState<EmployeeExpensesState> employeeExpen
             messageService.Show(result.ResponseInformation, MessageSeverityType.Success);
             var expenses = new List<ExpenseDto>(employeeExpensesState.Value.EmployeeExpenses);
             expenses.Add(result.Data);
-            dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeExpensesAction(expenses.OrderByDescending(expense => expense.ModifyDate).ToList()));
+            dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeExpensesAction(expenses.OrderByDescending(expense => expense.ModifiedDateTime).ToList()));
             navigationManager.NavigateTo(PageAddressConstants.EmployeeExpensesPage);
             dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeExpensesInitializedAction(true));
             dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeExpensesLoadingAction(false));
@@ -75,7 +75,7 @@ public class EmployeeExpensesEffects(IState<EmployeeExpensesState> employeeExpen
             var oldExpense = expenses.First(x => x.Id == action.ExpenseForm.Id);
             expenses.Remove(oldExpense);
             expenses.Add(result.Data);
-            dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeExpensesAction(expenses.OrderByDescending(expense => expense.ModifyDate).ToList()));
+            dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeExpensesAction(expenses.OrderByDescending(expense => expense.ModifiedDateTime).ToList()));
             navigationManager.NavigateTo(PageAddressConstants.EmployeeExpensesPage);
             dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeExpensesInitializedAction(true));
             dispatcher.Dispatch(new EmployeeExpensesActions.SetEmployeeExpensesLoadingAction(false));

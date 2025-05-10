@@ -9,6 +9,7 @@ public static class DependencyInjection
             configuration.SnackbarConfiguration.NewestOnTop = true;
             configuration.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
         });
+        services.AddMudExtensions();
         services.AddBlazoredLocalStorage();
         services.AddScoped<ICustomLocalStorageService, CustomLocalStorageService>();
         services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
